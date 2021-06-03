@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="exttype">
+      <UniqueIdentifier>{f112d23e-123a-4383-a5cd-81d283118e82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom">
+      <UniqueIdentifier>{cc0a398b-9fad-418e-ad50-14faf71c22a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\transform">
+      <UniqueIdentifier>{ccde5b06-5d3a-49f0-854f-c5c7571c56a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\transform\homography">
+      <UniqueIdentifier>{0b3a01be-0359-4efd-b675-14cf28e9952a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\r2geometry">
+      <UniqueIdentifier>{33bcebdf-7b81-4186-99fd-4161b9419c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\p2geometry">
+      <UniqueIdentifier>{3e7e975d-9c14-4c1d-9cb0-e63280550299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\grid">
+      <UniqueIdentifier>{bb32bae1-c95d-4f55-984e-23a9d5830c91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\r1geometry">
+      <UniqueIdentifier>{69b87ffb-2014-4926-96c6-8ac6689db28b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geom\r3geometry">
+      <UniqueIdentifier>{c705de2c-70b0-457e-a9d7-f86afab5cf85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{e7a0ece3-88b6-4222-b8c8-a1ac6b0b2cb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dynamic">
+      <UniqueIdentifier>{f128594a-921c-40fc-8c60-420f418e56ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debug">
+      <UniqueIdentifier>{7030deca-8bf0-493a-b2e8-0426c7d1f488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="streams">
+      <UniqueIdentifier>{a273c22c-10c6-42ad-a26a-06d9c8eecd04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="files">
+      <UniqueIdentifier>{bac5b5ab-fd7b-4434-b051-15f1762aac6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\code\exttype\arrayn.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\arrays.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\convolution.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\fixed_vect.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\intn.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\itern.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\ivector.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\minmax.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\exttype\pvect.h">
+      <Filter>exttype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\geom.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\imatrix.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\math.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\nmmatrix.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\vectn.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\Zn.h">
+      <Filter>geom</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\transform\homography\homography.h">
+      <Filter>geom\transform\homography</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\transform\homography\hvect.h">
+      <Filter>geom\transform\homography</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r2geometry\convexpoly.h">
+      <Filter>geom\r2geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r2geometry\r2geometry.h">
+      <Filter>geom\r2geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r2geometry\r2grid.h">
+      <Filter>geom\r2geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r2geometry\vect2.h">
+      <Filter>geom\r2geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\p2geometry\hpoly.h">
+      <Filter>geom\p2geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\grid\grid.h">
+      <Filter>geom\grid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r1geometry\r1geometry.h">
+      <Filter>geom\r1geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r3geometry\flatpoly.h">
+      <Filter>geom\r3geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\geom\r3geometry\vect3.h">
+      <Filter>geom\r3geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\data\dataset.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\data\grid_topology.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\data\indexset.h">
+      <Filter>data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\array_allocator.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\block_allocator.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\buffer.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\dynamic_array1.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\fixed_array1.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\fixed_array2.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\dynamic\num_array.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\debug\except.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\debug\logs.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\debug\msvcdebug.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\debug\performance.h">
+      <Filter>debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\streams\binary_stream.h">
+      <Filter>streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\streams\file_stream.h">
+      <Filter>streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\streams\text_stream.h">
+      <Filter>streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\streams\virtual_stream.h">
+      <Filter>streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\streams\xstringstream.h">
+      <Filter>streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\code\files\xfs.h">
+      <Filter>files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\code\exttype\pvect.cpp">
+      <Filter>exttype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\math.cpp">
+      <Filter>geom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\vectn.cpp">
+      <Filter>geom</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\transform\homography\homography.cpp">
+      <Filter>geom\transform\homography</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\transform\homography\hvect.cpp">
+      <Filter>geom\transform\homography</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\r2geometry\r2geometry.cpp">
+      <Filter>geom\r2geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\r2geometry\r2grid.cpp">
+      <Filter>geom\r2geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\r2geometry\vect2.cpp">
+      <Filter>geom\r2geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\grid\grid.cpp">
+      <Filter>geom\grid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\r1geometry\r1geometry.cpp">
+      <Filter>geom\r1geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\geom\r3geometry\vect3.cpp">
+      <Filter>geom\r3geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\data\dataset.cpp">
+      <Filter>data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\dynamic\block_allocator.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\dynamic\num_array.cpp">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\debug\logs.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\debug\msvcdebug.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\debug\performance.cpp">
+      <Filter>debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\streams\binary_stream.cpp">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\streams\file_stream.cpp">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\streams\text_stream.cpp">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\streams\virtual_stream.cpp">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\streams\xstringstream.cpp">
+      <Filter>streams</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\code\files\xfs.cpp">
+      <Filter>files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

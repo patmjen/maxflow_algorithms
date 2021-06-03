@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="solve_dimacs" />
+		<Option makefile="solve_dimacs.Makefile.cdb" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../bin/d_maxflow/solve_dimacs-D" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin/d_maxflow" />
+				<Option object_output="../../obj/solve_dimacs/Debug-Linux" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g -O0" />
+					<Add option="-DDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="d_maxflow-Linux-D" />
+					<Add library="maxflow_GT-Linux-D" />
+					<Add library="maxflow_BK-Linux-D" />
+					<Add library="exttype-Linux-D" />
+					<Add directory="$(BOOST_ROOT)/lib" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../../bin/d_maxflow/solve_dimacs" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../bin/d_maxflow" />
+				<Option object_output="../../obj/solve_dimacs/Release-Linux" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g -O3" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="d_maxflow-Linux" />
+					<Add library="maxflow_GT-Linux" />
+					<Add library="maxflow_BK-Linux" />
+					<Add library="exttype-Linux" />
+					<Add directory="$(BOOST_ROOT)/lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="$(#cflags.cflags)" />
+		</Compiler>
+		<Linker>
+			<Add option="-L../../lib" />
+			<Add option="-fopenmp" />
+			<Add library="boost_thread" />
+			<Add library="boost_system" />
+			<Add library="boost_filesystem" />
+		</Linker>
+		<Unit filename="../../code/d_maxflow/get_solver.cpp" />
+		<Unit filename="../../code/d_maxflow/get_solver.h" />
+		<Unit filename="../../code/d_maxflow/solve_dimacs.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

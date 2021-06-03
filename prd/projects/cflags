@@ -1,0 +1,1 @@
+-w -O2 -fpermissive -fPIC -fomit-frame-pointer -fopenmp -Winline --param inline-unit-growth=1000 --param max-inline-insns-single=1000 --param large-function-growth=500 -DMX_COMPAT_32 -g

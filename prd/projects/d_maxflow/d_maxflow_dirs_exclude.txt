@@ -1,0 +1,10 @@
+*.user
+*.ncb
+*.svn
+~*
+*\old\
+*\depricated\
+*.max_reg
+*.layout
+*.depend
+*\back\

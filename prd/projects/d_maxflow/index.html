@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Distributed Algorithm for Mincut/Maxflow</title>
+<style type="text/css">
+* {
+	font-size:12pt;
+	text-decoration: none;
+}
+h1 {font-size:250%;}
+h2 {font-size:200%;}
+</style>
+</head>
+
+<body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <caption>&nbsp;	
+  </caption>
+  <tr bgcolor="#B4D5FC">
+    <th scope="col"><h2>A Distributed Algorithm for Mincut/Maxflow <br />
+    Combining Path Augmentation and Push-Relabel</h2></th>
+  </tr>
+  </table>
+
+  <table width=100% cellpadding="20px">
+  <tr>
+    <td><table border="0" align="left" cellpadding="5" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td bgcolor="#DFE0E3" style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Software</td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <!--    <div style="background-color:black; color:black;  width:100%; height:1px"></div> -->
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p>This page provides the software described in <a href="#refs">[1a,b]</a>.  The purpose is to allow for reproducibility of experiments published in [1a,b], in particular solving problems in DIMACS format, and for further research purposes. As such the package includes several openly distributed previous implementations (compared to in [1]) as well as our new algorithms. Please consult the corresponding README files about the use of these referenced implementations. The following algorithms are included:</p>
+                <blockquote>
+                  <p>BK - augmenting path method by Boykov-Kolmogorov <a href="#refs">[2]</a> (implementation <a href="http://www.cs.ucl.ac.uk/staff/V.Kolmogorov/software.html">http://www.cs.ucl.ac.uk/staff/V.Kolmogorov/software.html</a>)<br />
+                    HIPR - 
+                    push-relabel method by Goldberg-Tarjan-Cherkassky <a href="#refs">[3]</a> (implementation <a href="http://www.avglab.com/andrew/soft.html">http://www.avglab.com/andrew/soft.html</a>)<br />
+                    DD - 
+                    dual decomposition method by Strandmark-Kahl <a href="#refs">[4]</a> (<a href="http://www.maths.lth.se/matematiklth/personal/petter/cppmaxflow.php">http://www.maths.lth.se/matematiklth/personal/petter/cppmaxflow.php</a> )<br />
+                    S-ARD 
+                    - sequential distributed method processing problem by parts in a limited memory <a href="#refs">[1b]</a> <br />
+                    P-ARD - parallel distributed method <a href="#refs">[1b]</a><br />
+                    S/P-PRD - sequential and parallel reimplementation of 
+                    Delong-Boykov <a href="#refs">[5]</a>, as described in <a href="#refs">[1b]</a>              </p>
+                </blockquote>
+<p>There are no warranties and we take no responsibility.  This version of software cannot be used for commercial purposes. Please contact the authors about other usage.</p>
+<p>Copyright 2011 Alexander Shekhovtsov (shekhovt@fel.cvut.cz), Vaclav Hlavac (hlavac@fel.cvut.cz)</p>
+<p><a href="d_maxflow_ar-1.1.zip">Download d_maxflow_ar.zip v1.1.0</a>.</p>
+                <a href="d_maxflow_ar-1.1.zip "></a>
+                <p>
+                	v 1.1.0: fixed problems with gcc, added new implementation of push-relabe for regular structure graphs (hpr1)<br/>
+	                v 1.0.2: fixed bug in S/P-PRD cut extraction step<br/>
+                	v 1.0.1: fixed missing files<br/>
+                </p>
+                </td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td>
+    <table border="0" align="left" cellpadding="5" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td bgcolor="#DFE0E3" style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Compilation</td>
+      </tr>
+    </table>
+    <br clear="left" />
+<!--    <div style="background-color:black; color:black;  width:100%; height:1px"></div> -->
+
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+    <tr>
+      <td bgcolor="#DFE0E3">
+    <table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+  <tr>
+    <td>
+      <p><strong>Windows / Visual Studio</strong></p>
+        <blockquote>
+          <p>            Open Visual Studio solution <code>projects/d_maxflow.sln</code><br />
+          Build it with one of the targets (say, Debug-Win32)
+          </p>
+<p>This should make libs <code>exttype</code>, <code>d_maxflow</code>, <code>maxflow_GT</code>, <code>maxflow_DD</code>, <code>maxflow_BK</code> in <code>lib/</code> and targets <code>cut_cost.exe</code>,<code> solve_dimacs.exe</code>,<code> solve_random.exe </code>in<br />
+  <code>bin/d_maxflow</code>.</p>
+<p><code>maxflow_DD</code> project requires boost libraries (<a href="http://www.boost.org/">http://www.boost.org/</a>),<br />
+  precompiled windows versions for x64 can be found  here: <a href="http://boost.teeks99.com/">http://boost.teeks99.com/</a>. To build <code>maxflow_DD</code>, Setup environment variable BOOST_ROOT to point to the root of boost libraries and add $(BOOST_ROOT) to &quot;VC++ Directories&quot; include files. To allow solvers to use  <code>maxflow_DD</code>, set the compiler option -Dsolver_DD on solve_random and solve_dimacs projects. This is not set by default.</p>
+</blockquote></td>
+  </tr>
+  <tr>
+    <td><p><strong>Linux / gcc</strong></p>
+      <blockquote>
+        <p>Adjust the compiler and linker options in <code>projects/cflags</code> and <code>projects/lflags</code><br />
+          <code>make -C projects/d_maxflow</code><br />
+        </p>
+        <p>This should make libs <code>exttype</code>, <code>d_maxflow</code>, <code>maxflow_GT</code>, <code>maxflow_DD</code>, <code>maxflow_BK</code> in <code>bin/lib/d_maxflow</code> and targets <code>cut_cost</code>,<code> solve_dimacs</code>,<code> solve_random </code>in<br />
+          <code>bin/d_maxflow</code>.</p>
+        <p>Alternatively, build using Code::Blocks workspace <code>projects/d_maxflow/d_maxflow.cdb.workspace</code> </p>
+      </blockquote></td>
+  </tr>
+    </table>
+
+    </td>
+    </tr>
+    </table>
+    
+    </td>
+  </tr>
+  <tr>
+    <td><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td bgcolor="#DFE0E3" style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Testing</td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p>Run <code>bin/d_maxflow/solve_random</code> to test solvers with random problems. The list of solvers invoked and the kind of random problems generated are controlled from code/d_maxflow/solve_random.cpp::main()</p>
+                <p>Run <code>bin/d_maxflow/solve_dimacs</code> to run solvers on problems in DIMACS format. Problem and the solver are specified on the command line. Instances can be found at   <a href="http://vision.csd.uwo.ca/maxflow-data/">http://vision.csd.uwo.ca/maxflow-data/</a>. One simple test instance with reference solutions is included in <code>test/d_maxflow</code>/. This instance is invoked if no arguments are provided.</p>
+                <p>We tested Win32/64 and Linux 32/64 compilations. Generally, 64bit compilations take about twice more memory and execute somewhat slower (because of memory bandwith and cache usage).</p>
+                <p>The runnig time reported excludes input parsing as well as other construction time. The current construction splits the problem into part files (uses disk) even for small instances. This take significant time.</p>
+                <p>The output of the solver is saved in the <code>.sol</code> file to where the instance was located and the minimum cut found is saved in the <code>.cut</code> file. To verify correctness run <code>bin/d_maxflow_cut_cost</code> on the output cut file. This verifies consistency between the cut value and the flow value. Feasibility of the flow is not verified independently, as it is problematic to implement for a large graph.</p>
+                <p>To reproduce published experiments, there are scripts provided in <code>matlab/d_maxflow</code>. Two scripts <code>solve_all.m</code> and <code>parallel_competition.m</code> can be used to invoke solvers on a set of problems. Their results are then collected into a tex table with <code>collect_streaming.m</code> and <code>collect_parallel.m</code> scripts.</p></td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td bgcolor="#DFE0E3" style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Description of code</td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p><strong>Contents of </strong><code>code/d_maxflow/</code></p>
+                <blockquote>
+                  <p><em>tests:</em><br />
+                    <code>solve_dimacs</code> -- command line  interface for calling solvers on DIMACS problems<br />
+                    <code>solve_random</code> -- command line  interface for calling solvers on random problems</p>
+                  <p><em>solvers:</em><br />
+                    <code>stream_ARD1</code> -- sequential ARD  solver (S-ARD), using disk<br />
+                    <code>stream_PRD</code> -- sequential PRD  solver (S-PRD), using disk<br />
+                    <code>parallel_ARD1</code> -- parallel ARD  solver (P-ARD)<br />
+                    <code>parallel_PRD1</code> -- parallel PRD  solver (P-PRD)<br />
+                    <code>maxflow_BK</code> --  augmenting path (BK) <br />
+                    <code>maxflow_GT</code> --  push-relabel (HIPR)<br />
+                    <code>maxflow_HPR</code> --  push-relabel with seeds (HPR)</p>
+                  <p><em>splitter:</em><br />
+                    <code>region_discharge</code> -- splitter from  DIMACS to auxiliary &lsquo;part&rsquo; files<br />
+                    <code>region_graph</code> -- the shared  part of the data (inter-region edges, etc)</p>
+                  <p><em>DIMACS parser:</em><br />
+                    <code>dimacs_parser</code> -- parses the  file and sends the arcs to a dimacs_parser_callback class </p>
+                  <p><em>implementation:</em><br />
+                    <code>sequential_discharge</code> -- common  code for sequential solvers<br />
+                    <code>parallel_discharge</code> -- common  code for parallel solvers</p>
+                  <p><code>PRD</code> -- implementation of &ldquo;discharge&rdquo;  in PRD, using seed_hi_pr<br />
+                    <code>seed_hi_pr</code> -- push-relabel  with seeds<br />
+                    <code>seed_buckets</code></p>
+                  <p><code>seed_BK1</code> -- implementation of  &ldquo;discharge&rdquo; in ARD (the efficient version described in TR). </p>
+  </blockquote>
+                <p><strong>Build targets:</strong><br />
+                  </p>
+                <blockquote> <code>exttype.lib</code> -- arrays and  memory management<br />
+                  <code>d_maxflow.lib</code> -- all implemented and wrapped solvers<br />
+                  <code>cut_cost.exe</code> --  tool to check the cost of a cut saved in the text file for a problem in the  DIMACS format very inefficient, but transparent to verify<br />
+                  <code>solve_dimacs.exe</code> -- solve the problems in the DIMACS  format, report results and save the minimum cut<br />
+                  <code>solve_random.exe</code> -- solve a random problem<br />
+                  <code>rpr_dimacs.exe</code> -- solve DIMACS problem with regulargrid  structure using regionpushrelabel </blockquote>
+                </p></td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Usage / Programming</td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p>To call the solvers directly use <code>code/d_maxflow/solve_random.cpp</code> as an example. The instance of the problem is passed to the solver using the following double-loop interface:</p>
+                <p>Initialization:<br />
+                  <code>constructor-&gt;allocate1(n,0,S,T,d,sz);</code> //here n - number of nodes in the graph, S,T - surce and sink indexes, d,sz - dimensionality and size of the problem (used by splitter, set d=1 if not available)<br />
+                  Then the data is passed by enumerating all the edges of the graph and their capacities. This is done twice. First time, the <code>constructor</code> counts how much memory will be needed for storing the problem parts, the second time it actuall constructs the graph and stores the data.<br />
+                  <code>for(int loop=0;loop&lt;2;++loop){</code>//first iteration only inspects the graph structure, the second one stores the data<br />
+                  <code>for(int e=0;e&lt;m;++e){</code>//loop over graph edges<code><br />
+  constructor-&gt;read_arc(loop,u,v,cap1,cap2);</code>// create arc with node indices u and v and capacities cap1 and cap2 on u-&gt;v and v-&gt;u respectively.<br />
+  <code>};<br />
+  constructor-&gt;allocate2(loop);</code> //this makes memory allocation after the first pass is complete<br />
+  <code>};<br />
+  constructor-&gt;allocate3();</code> //this performs some final steps</p>
+                <p>With this interface no intermediate storage of the graph is used, the data is passed to the solver internal representation (which differs among solvers).</p>
+                <p>The <code>dimacs_parser</code> object when reading the input from the DIMACS file also makes it twice to pass the problem with the double-loop interface. The current pipeline to solve problem is as follows:</p>
+                <p>solve problem as a whole:<br />
+                </p>
+                <table border="0" cellpadding="5" cellspacing="10" frame="void">
+                  <tr>
+                    <td scope="col"><code>parser / other source</code></td>
+                    <td scope="col"><code>-&gt; solver</code></td>
+                  </tr>
+                </table>
+                <p>to solve problem by parts:</p>
+                <p></p>
+                <table border="0" cellpadding="5" cellspacing="10" frame="void">
+                  <tr>
+                    <td scope="col"><code>parser / other source</code></td>
+                    <td scope="col"><code> -&gt; splitter</code></td>
+                    <td scope="col"><code>-&gt; solver subproblem1</code></td>
+                  </tr>
+                  <tr>
+                    <td><code></code></td>
+                    <td><code></code></td>
+                    <td><code>-&gt; solver subproblem2</code></td>
+                  </tr>
+                  <tr>
+                    <td><code></code></td>
+                    <td><code></code></td>
+                    <td><code>-&gt; ...</code></td>
+                  </tr>
+              </table>
+                <p>where each arrow (<code>-&gt;</code>) denotes a double-loop interface to pass the graph or a part sub-graph. So all the solvers and the splitter support construction via double-loop interface. There is a caviate however in the current implementation, that the splitter is implemented in a way that it first create files on the disk corresponding to problem parts in the intermediate format and only then constructs the subproblems. This is to be improved. I will also try to improve the end-user interface and clarity.</p></td>
+            </tr>
+            <tr>
+              <td><p>/todo: abstract graph implementation, merging the common  part of seed_BK and seed_hipr implementations</p>
+                <p>/todo: alternative graph implementations, regular grid  graph implementation</p>
+                <p>/todo: MPI implementation on a cluster</p></td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Performance Tests</td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p>
+              Here we will publish additional performance tests on the benchmark problems.
+              <p><b>Parallel test on linux 64bit 16Gb | 8CPUs (Intel(R) Core(TM)i7 CPU 870@2.9GHz) </b>
+              
+              	<table class="image">
+              	<caption align="top">Relative computation time vs #CPUs used</caption>
+              	<tr><td><img src="doc/tests/parallel_CPU8_64b.png"/></td></tr>
+              	</table>
+              
+
+              </p>
+              <p>
+              I believe that the limiting factor in parallelization is the memory bandwidth. The sequential part
+              of the computation ocuppy less than 10% of the total time for all of the problems. The fully
+              parallel part should exhibit linear speed-up in the ideal case of even load. The load is of course
+              somewhat uneven, but still for liver.n26c100 (for example) there are 64 regions, which balances the load. 
+              Still there is no speed-up observed in the first iteration of the parallel part when going from 4 to 8 CPUs.
+              </p>
+              <p>It is most probable that reducing memory requirements (e.g. by having dedicated graph implementation
+              for regular grids) would also lead to a speed-up of the parallel solver. We also observed that 32bit
+              compilation (pointers take 32bits) runs faster than 64bit compilation.
+              </p>
+              <em></em></p></td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr bgcolor="#DFE0E3">
+        <td style="font-weight:bold; padding-left:2ex; padding-right:2ex; padding-top:1ex; padding-bottom:0em;">Publications<a name="refs" id="refs"></a></td>
+      </tr>
+    </table>
+      <br clear="left" />
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" frame="void" hspace="0" vspace="0">
+        <tr>
+          <td bgcolor="#DFE0E3"><table width="100%" border="1" cellpadding="5" cellspacing="10" frame="void">
+            <tr>
+              <td><p>[1a] A. Shekhovtsov, V. Hlavac: A Distributed Mincut/Maxﬂow Algorithm Combining Path Augmentation and Push-Relabel,<strong> </strong><em>EMMCVPR 2011. </em><a href="http://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow.pdf">[pdf]</a>, <a href="http://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow.bib">[bib]</a>. </p>
+                <p> [1b] A. Shekhovtsov, V. Hlavac: A Distributed Mincut/Maxﬂow Algorithm Combining Path Augmentation and Push-Relabel,<strong> </strong><em>Research Report</em><strong> </strong><em>K333--43/11, CTU--CMP--2011—03, Czech Technical University. </em><a href="http://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow-TR.pdf">[pdf]</a>, <a href="http://cmp.felk.cvut.cz/~shekhovt/publications/shekhovtsov-11-mixed_maxflow-TR.bib">[bib]</a></p>
+                <p>[2]  Y. Boykov, V. Kolmogorov:   An experimental comparison of min-cut/max-ﬂow algorithms for energy                  minimization in vision. <em>In PAMI, volume 26, 2004</em></p>
+                <p>[3]  B. V. Cherkassky, A. V. Goldberg: On implementing push-relabel method for the maximum ﬂow problem. <em>Technical report, 1994.</em></p>
+                <p>[4] P. Strandmark, F. Kahl: Parallel and distributed graph cuts by dual decomposition, <em>CVPR 2010.</em></p>
+                <p>[5] A. Delong and Y. Boykov: A scalable graph-cut algorithm for N-D grids. <em>CVPR 2008.</em></p></td>
+            </tr>
+          </table></td>
+        </tr>
+    </table></td>
+  </tr>
+</table>
+</body>
+</html>

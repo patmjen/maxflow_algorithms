@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="exttype" />
+		<Option makefile="Makefile.cdb" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../lib/libexttype-Linux-D" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../obj/exttype/Debug-Linux" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g -O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../lib/libexttype-Linux" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../obj/exttype/Release-Linux" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g -O3" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="$(#cflags.cflags)" />
+		</Compiler>
+		<Linker>
+			<Add option="-fopenmp" />
+		</Linker>
+		<Unit filename="../../code/data/dataset.cpp" />
+		<Unit filename="../../code/data/dataset.h" />
+		<Unit filename="../../code/data/grid_topology.h" />
+		<Unit filename="../../code/data/indexset.h" />
+		<Unit filename="../../code/debug/except.h" />
+		<Unit filename="../../code/debug/logs.cpp" />
+		<Unit filename="../../code/debug/logs.h" />
+		<Unit filename="../../code/debug/msvcdebug.cpp" />
+		<Unit filename="../../code/debug/msvcdebug.h" />
+		<Unit filename="../../code/debug/performance.cpp" />
+		<Unit filename="../../code/debug/performance.h" />
+		<Unit filename="../../code/dynamic/array_allocator.h" />
+		<Unit filename="../../code/dynamic/block_allocator.cpp" />
+		<Unit filename="../../code/dynamic/block_allocator.h" />
+		<Unit filename="../../code/dynamic/buffer.h" />
+		<Unit filename="../../code/dynamic/dynamic_array1.h" />
+		<Unit filename="../../code/dynamic/fixed_array1.h" />
+		<Unit filename="../../code/dynamic/fixed_array2.h" />
+		<Unit filename="../../code/dynamic/num_array.cpp" />
+		<Unit filename="../../code/dynamic/num_array.h" />
+		<Unit filename="../../code/exttype/arrayn.h" />
+		<Unit filename="../../code/exttype/arrays.h" />
+		<Unit filename="../../code/exttype/convolution.h" />
+		<Unit filename="../../code/exttype/fixed_vect.h" />
+		<Unit filename="../../code/exttype/intn.h" />
+		<Unit filename="../../code/exttype/itern.h" />
+		<Unit filename="../../code/exttype/ivector.h" />
+		<Unit filename="../../code/exttype/minmax.h" />
+		<Unit filename="../../code/exttype/pvect.cpp" />
+		<Unit filename="../../code/exttype/pvect.h" />
+		<Unit filename="../../code/files/xfs.cpp" />
+		<Unit filename="../../code/files/xfs.h" />
+		<Unit filename="../../code/geom/Zn.h" />
+		<Unit filename="../../code/geom/geom.h" />
+		<Unit filename="../../code/geom/grid/grid.cpp" />
+		<Unit filename="../../code/geom/grid/grid.h" />
+		<Unit filename="../../code/geom/imatrix.h" />
+		<Unit filename="../../code/geom/math.cpp" />
+		<Unit filename="../../code/geom/math.h" />
+		<Unit filename="../../code/geom/nmmatrix.h" />
+		<Unit filename="../../code/geom/p2geometry/hpoly.h" />
+		<Unit filename="../../code/geom/r1geometry/r1geometry.cpp" />
+		<Unit filename="../../code/geom/r1geometry/r1geometry.h" />
+		<Unit filename="../../code/geom/r2geometry/convexpoly.h" />
+		<Unit filename="../../code/geom/r2geometry/r2geometry.cpp" />
+		<Unit filename="../../code/geom/r2geometry/r2geometry.h" />
+		<Unit filename="../../code/geom/r2geometry/r2grid.cpp" />
+		<Unit filename="../../code/geom/r2geometry/r2grid.h" />
+		<Unit filename="../../code/geom/r2geometry/vect2.cpp" />
+		<Unit filename="../../code/geom/r2geometry/vect2.h" />
+		<Unit filename="../../code/geom/r3geometry/flatpoly.h" />
+		<Unit filename="../../code/geom/r3geometry/vect3.cpp" />
+		<Unit filename="../../code/geom/r3geometry/vect3.h" />
+		<Unit filename="../../code/geom/transform/homography/homography.cpp" />
+		<Unit filename="../../code/geom/transform/homography/homography.h" />
+		<Unit filename="../../code/geom/transform/homography/hvect.cpp" />
+		<Unit filename="../../code/geom/transform/homography/hvect.h" />
+		<Unit filename="../../code/geom/vectn.cpp" />
+		<Unit filename="../../code/geom/vectn.h" />
+		<Unit filename="../../code/numeric/fixed_point.h" />
+		<Unit filename="../../code/streams/binary_stream.cpp" />
+		<Unit filename="../../code/streams/binary_stream.h" />
+		<Unit filename="../../code/streams/file_stream.cpp" />
+		<Unit filename="../../code/streams/file_stream.h" />
+		<Unit filename="../../code/streams/text_stream.cpp" />
+		<Unit filename="../../code/streams/text_stream.h" />
+		<Unit filename="../../code/streams/virtual_stream.cpp" />
+		<Unit filename="../../code/streams/virtual_stream.h" />
+		<Unit filename="../../code/streams/xstringstream.cpp" />
+		<Unit filename="../../code/streams/xstringstream.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

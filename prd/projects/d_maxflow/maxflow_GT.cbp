@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="maxflow_GT" />
+		<Option makefile="Makefile.cdb" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../lib/libmaxflow_GT-Linux-D" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../obj/maxflow_GT/Debug-Linux" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g -O0" />
+					<Add option="-DDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../lib/libmaxflow_GT-Linux" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="../../obj/maxflow_GT/Release-Linux" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g -O3" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="$(#cflags.cflags)" />
+		</Compiler>
+		<Linker>
+			<Add option="-fopenmp" />
+		</Linker>
+		<Unit filename="../../code/hi_pr/construct.cpp" />
+		<Unit filename="../../code/hi_pr/hi_pr.cpp" />
+		<Unit filename="../../code/hi_pr/hi_pr.h" />
+		<Unit filename="../../code/hi_pr/parser.cpp" />
+		<Unit filename="../../code/hi_pr/timer.cpp" />
+		<Unit filename="../../code/hi_pr/timer.h" />
+		<Unit filename="../../code/hi_pr/types.h" />
+		<Unit filename="../../code/hi_pr/values.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

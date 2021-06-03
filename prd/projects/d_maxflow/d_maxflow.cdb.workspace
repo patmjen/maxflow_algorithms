@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="../exttype/exttype.cbp" />
+		<Project filename="d_maxflow.cbp">
+			<Depends filename="../exttype/exttype.cbp" />
+		</Project>
+		<Project filename="maxflow_GT.cbp">
+			<Depends filename="../exttype/exttype.cbp" />
+		</Project>
+		<Project filename="maxflow_BK.cbp">
+			<Depends filename="../exttype/exttype.cbp" />
+		</Project>
+		<Project filename="solve_random.cbp">
+			<Depends filename="../exttype/exttype.cbp" />
+			<Depends filename="d_maxflow.cbp" />
+			<Depends filename="maxflow_GT.cbp" />
+			<Depends filename="maxflow_BK.cbp" />
+		</Project>
+		<Project filename="solve_dimacs.cbp" active="1">
+			<Depends filename="../exttype/exttype.cbp" />
+			<Depends filename="d_maxflow.cbp" />
+			<Depends filename="maxflow_GT.cbp" />
+			<Depends filename="maxflow_BK.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>

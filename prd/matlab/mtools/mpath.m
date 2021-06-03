@@ -1,0 +1,2 @@
+maddpath('.');
+maddpath('img');

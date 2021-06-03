@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cut_cost" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../../bin/d_maxflow/cut_cost-D" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../obj/cut_cost/Debug-Linux" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g -O0" />
+					<Add option="-DDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Release">
+				<Option output="../../bin/d_maxflow/cut_cost" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../obj/cut_cost/Release-Linux" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-w -g -O3" />
+					<Add option="-DNDEBUG" />
+					<Add directory="../../code" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="../../code" />
+				</ResourceCompiler>
+				<Linker>
+					<Add directory="$(CUDA_LIB_PATH)" />
+					<Add directory="$(CUDA_LIB_PATH)/../../CUDA-SDK32/common/lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="../../code/d_maxflow/cut_cost.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,19 @@
+hi_pr version 3.6, 9/9/06
+
+hi_pr is a derivative of the h_prf code of Cherkassky and Goldberg.
+The code has been rewritten to make it more maintainable and stable.
+
+Algorithmic changes include array representation of adjacency lists (compared
+to the linked list representation in h_prf) and initialization (done by 
+saturating all out-of-source arcs rather then placing a large excess at 
+the source); also by default, global update is not performed immediately
+after initialization. Old initialization is supported via a compiler option.
+
+Version 3.2 differs from 3.1 by a slightly different strategy for measuring
+work to decide when to envoke the next global update. Version 3.3 fixes a
+bug in the second (flow computation) stage, implements excessType better,
+and adds a CHECK_SOLUTION compiler option.Version 3.4 adds cType 
+(capacity type) and the ability to reinitialize computation using init()
+function. Version 3.5 adds wave-type initialization, which is better on
+some problem families (and worse on others). Version 3.5 also uses less memory.
+Version 3.6 adds CYGWIN compatibility.
