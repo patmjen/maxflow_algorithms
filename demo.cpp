@@ -14,8 +14,7 @@
 #include "ibfs/ibfs.h"
 #include "reimpls/hpf.h"
 #include "hi_pr/hi_pr.h"
-//#include "reimpls/parallel_sk.h"
-// #include "sk/parallelmaxflow.h"
+#include "reimpls/parallel_sk.h"
 
 using Duration = std::chrono::duration<double>;
 static const auto now = std::chrono::steady_clock::now;
@@ -429,7 +428,7 @@ void bench_hi_pr(const BkGraph<int, int> bkg)
 
     std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
     std::cout << "maxflow: " << graph.flow / 2 << ", iters: " << graph.iter << std::endl;
-}
+}*/
 
 template <class capty, class tcapty>
 void bench_sk(const BkGraph<capty, tcapty> bkg)
@@ -453,7 +452,7 @@ void bench_sk(const BkGraph<capty, tcapty> bkg)
     std::cout << "building... ";
     auto build_begin = now();
     graph.add_node(bkg.num_nodes);
-    
+
     int cumsum = 0;
     int i;
     for (i = 0; i < num_threads - 1; ++i) {
@@ -481,7 +480,7 @@ void bench_sk(const BkGraph<capty, tcapty> bkg)
 
     std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
     std::cout << "maxflow: " << flow / 2 << ", iters: " << graph.get_iter() << std::endl;
-}*/
+}
 
 template <class capty, class tcapty>
 BkGraph<capty, tcapty> read_graph(const std::string& fname)
@@ -507,9 +506,11 @@ int main(int argc, const char* argv[])
 {
     std::string fname;
     if (argc < 2) {
-        //fname = "C:/Users/patmjen/Documents/HCP Anywhere/projects/parallel-qpbo/data/bone.n6c10.max.bbk";
-        fname = "C:/Users/patmjen/Danmarks Tekniske Universitet/Niels Jeppesen - Parallel QPBO/data/bone_subx.n6c10.max.bbk";
-        //fname = "C:/Users/patmjen/Documents/HCP Anywhere/projects/parallel-qpbo/data/104_0412_16bins.max.bbk";
+        std::cout << "ERROR: must provide problem instance file\n";
+        std::cout << "Usage: demo <file> [<algo>...]\n";
+        std::cout << "  Benchmark FILE with ALGOs. ALGO must be one of:\n";
+        std::cout << "    bk mbk pmbk eilbfs_old eibfs eibfs2 peibfs ppr hpf hi_pr sk\n";
+        return -1;
     } else {
         fname = argv[1];
     }
@@ -518,51 +519,57 @@ int main(int argc, const char* argv[])
     try {
         auto bkg = read_graph<int, int>(fname);
 
-        // Make sure all capacities are even for Strandmark-Kahl
-        /*for (auto& t : bkg.terminal_arcs) {
-            if (t.source_cap % 2 != 0) t.source_cap++;
-            if (t.sink_cap % 2 != 0) t.sink_cap++;
+        for (int i = 0; i < argc - 2; ++i) {
+            std::string algo = argv[i + 2];
+            if (algo == "bk") {
+                std::cerr << "BK:" << std::endl;
+                bench_bk(bkg);
+            }
+            if (algo == "mbk") {
+                std::cerr << "MBK:" << std::endl;
+                bench_mbk(bkg);
+            }
+            if (algo == "pmbk") {
+                std::cerr << "Parallel MBK:" << std::endl;
+                bench_pmbk(bkg, fname);
+            }
+            if (algo == "eibfs_old") {
+                std::cerr << "EIBFS old:" << std::endl;
+                bench_ibfs_old(bkg);
+            }
+            if (algo =="eibfs") {
+                std::cerr << "EIBFS new:" << std::endl;
+                bench_ibfs(bkg);
+            }
+            if (algo =="eibfs2") {
+                std::cerr << "EIBFS new2:" << std::endl;
+                bench_ibfs2(bkg);
+            }
+            if (algo =="peibfs") {
+                std::cerr << "Parallel EIBFS:" << std::endl;
+                bench_pibfs(bkg);
+            }
+            /*if (algo =="ppr") {
+                std::cerr << "Parallel PR:" << std::endl;
+                bench_ppr(bkg);
+            }*/
+            if (algo =="hpf") {
+                std::cerr << "HPF:" << std::endl;
+                bench_hpf(bkg);
+            }
+            if (algo =="hi_pr") {
+                std::cerr << "HI_PR:" << std::endl;
+                bench_hi_pr(bkg);
+            }
+            /*if (algo =="sk_old") {
+                std::cerr << "Strandmark-Kahl old:" << std::endl;
+                bench_sk_old(bkg);
+            }*/
+            if (algo =="sk") {
+                std::cerr << "Strandmark-Kahl new:" << std::endl;
+                bench_sk(bkg);
+            }
         }
-        for (auto& n : bkg.neighbor_arcs) {
-            if (n.cap % 2 != 0) n.cap++;
-            if (n.rev_cap % 2 != 0) n.rev_cap++;
-        }*/
-
-        /*std::cout << "BK:" << std::endl;
-        bench_bk(bkg);*/
-
-        /*std::cout << "MBK:" << std::endl;
-        bench_mbk(bkg);*/
-
-        /*std::cout << "Parallel MBK:" << std::endl;
-        bench_pmbk(bkg, fname);*/
-
-        /*std::cerr << "EIBFS old:\n";
-        bench_ibfs_old(bkg);*/
-
-        std::cerr << "EIBFS new:\n";
-        bench_ibfs(bkg);
-
-        /*std::cerr << "EIBFS new2:\n";
-        bench_ibfs2(bkg);*/
-
-        std::cerr << "Parallel EIBFS:\n";
-        bench_pibfs(bkg);
-
-        /*std::cerr << "Parallel PR:\n";
-        bench_ppr(bkg);*/
-
-        /*std::cerr << "HPF:\n";
-        bench_hpf(bkg);*/
-
-        /*std::cerr << "HI_PR:\n";
-        bench_hi_pr(bkg);*/
-
-        /*std::cerr << "Strandmark-Kahl old:\n";
-        bench_sk_old(bkg);*/
-
-        /* std::cerr << "Strandmark-Kahl new:\n";
-        bench_sk(bkg);*/
     } catch (const std::exception& e) {
         std::cout << "ERROR: " << e.what() << "\n";
         return -1;
