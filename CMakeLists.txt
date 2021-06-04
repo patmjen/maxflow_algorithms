@@ -1,23 +1,21 @@
 cmake_minimum_required(VERSION 3.13)
 
+# Set up the project
 option(maxflow_algos_build_bench "Build benchmark program" ON)
 option(maxflow_algos_vtune_instrumentation "Enable Intel VTune instrumentation" OFF)
+
+# By default build as Release unless specified by the user
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE
+        STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel.")
+endif()
+message("Build type: " ${CMAKE_BUILD_TYPE})
 
 project("maxflow_algos" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_subdirectory(reimpls)
-add_subdirectory(bk)
-add_subdirectory(snappy)
-add_subdirectory(hi_pr)
-# add_subdirectory(sk)
-add_subdirectory(sppr)
-add_subdirectory(prd)
-
-add_executable(demo "demo.cpp" "graph_io.cpp")
-add_executable(bench_io "bench_io.cpp" "graph_io.cpp")
-
+# Set up paths and variables
 if (maxflow_algos_vtune_instrumentation)
     if (NOT DEFINED ENV{VTUNE_PROFILER_2020_DIR})
         message(FATAL_ERROR "Environment variable for Intel VTune location not found")
@@ -26,7 +24,8 @@ if (maxflow_algos_vtune_instrumentation)
     message("VTune path: " "${VTUNE_PATH}")
 endif()
 
-file(TO_CMAKE_PATH "~/oneapi-tbb-2021.1.1" TBB_PATH) # Change this to your path!
+#file(TO_CMAKE_PATH "~/oneapi-tbb-2021.1.1" TBB_PATH) # Change this to your path!
+file(TO_CMAKE_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2020.1.216/windows/tbb" TBB_PATH) # Change this to your path!
 if (EXISTS ${TBB_PATH})
     message("TBB path: " "${TBB_PATH}")
     set(FOUND_TBB true)
@@ -34,6 +33,19 @@ else()
     message(WARNING "Cannot find Intel Threading Building Blocks library. Some algorithms may not compile. Tried: " "${TBB_PATH}")
     set(FOUND_TBB false)
 endif()
+
+# Add subdirectories
+add_subdirectory(reimpls)
+add_subdirectory(bk)
+add_subdirectory(snappy)
+add_subdirectory(hi_pr)
+# add_subdirectory(sk)
+add_subdirectory(sppr)
+add_subdirectory(prd)
+
+# Add and configure targets
+add_executable(demo "demo.cpp" "graph_io.cpp")
+add_executable(bench_io "bench_io.cpp" "graph_io.cpp")
 
 if (maxflow_algos_build_bench)
     add_executable(bench "bench.cpp" "graph_io.cpp")
@@ -44,7 +56,11 @@ if (maxflow_algos_build_bench)
         target_link_options(bench PRIVATE -g -O3 -lpthread -fopenmp)
     endif()
     if (FOUND_TBB)
-        target_link_directories(bench PRIVATE "${TBB_PATH}/lib/intel64/gcc4.8")
+        if (WIN32)
+            target_link_directories(bench PRIVATE "${TBB_PATH}/lib/intel64_win/vc14")
+        else()
+            target_link_directories(bench PRIVATE "${TBB_PATH}/lib/intel64/gcc4.8")
+        endif()
         target_include_directories(bench PUBLIC "${TBB_PATH}/include")
         target_link_libraries(bench tbb)
     endif()

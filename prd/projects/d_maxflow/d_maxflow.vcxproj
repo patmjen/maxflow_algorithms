@@ -178,6 +178,7 @@
     <ClInclude Include="..\..\code\d_maxflow\region_discharge.h" />
     <ClInclude Include="..\..\code\d_maxflow\region_graph.h" />
     <ClInclude Include="..\..\code\d_maxflow\region_splitter.h" />
+    <ClInclude Include="..\..\code\d_maxflow\region_splitter2.h" />
     <ClInclude Include="..\..\code\d_maxflow\seed_BK1.h" />
     <ClInclude Include="..\..\code\d_maxflow\seed_buckets.h" />
     <CustomBuild Include="..\..\code\d_maxflow\seed_hi_pr.h">
@@ -205,6 +206,7 @@
     <ClCompile Include="..\..\code\d_maxflow\region_discharge.cpp" />
     <ClCompile Include="..\..\code\d_maxflow\region_graph.cpp" />
     <ClCompile Include="..\..\code\d_maxflow\region_splitter.cpp" />
+    <ClCompile Include="..\..\code\d_maxflow\region_splitter2.cpp" />
     <ClCompile Include="..\..\code\d_maxflow\seed_BK1.cpp" />
     <ClCompile Include="..\..\code\d_maxflow\seed_buckets.cpp" />
     <ClCompile Include="..\..\code\d_maxflow\seed_hi_pr.cpp">

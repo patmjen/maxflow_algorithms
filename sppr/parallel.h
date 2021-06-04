@@ -1,14 +1,21 @@
 #ifndef _PARALLEL_H
 #define _PARALLEL_H
 
+// Different compilers have different pragma macros
+#ifdef _MSC_VER
+#define SPPR_PRAGMA(x) __pragma(x)
+#else
+#define SPPR_PRAGMA(x) _Pragma(x)
+#endif
+
 // cilkarts cilk++
 #if defined(CILK)
 #include <cilk.h>
 #include <cassert>
 #define parallel_main cilk_main
 #define sppr_parallel_for cilk_for
-#define sppr_parallel_for_1 _Pragma("cilk_grainsize = 1") cilk_for
-#define sppr_parallel_for_256 _Pragma("cilk_grainsize = 256") cilk_for
+#define sppr_parallel_for_1 SPPR_PRAGMA("cilk_grainsize = 1") cilk_for
+#define sppr_parallel_for_256 SPPR_PRAGMA("cilk_grainsize = 256") cilk_for
 
 static int getWorkers() { return -1; }
 static void setWorkers(int n) { }
@@ -22,8 +29,8 @@ static void setWorkers(int n) { }
 #include <cstdlib>
 #define sppr_parallel_for cilk_for
 #define parallel_main main
-#define sppr_parallel_for_1 _Pragma("cilk grainsize = 1") sppr_parallel_for
-#define sppr_parallel_for_256 _Pragma("cilk grainsize = 256") sppr_parallel_for
+#define sppr_parallel_for_1 SPPR_PRAGMA("cilk grainsize = 1") sppr_parallel_for
+#define sppr_parallel_for_256 SPPR_PRAGMA("cilk grainsize = 256") sppr_parallel_for
 
 static int getWorkers() {
   return __cilkrts_get_nworkers();
@@ -44,9 +51,9 @@ static void setWorkers(int n) {
 #define cilk_spawn
 #define cilk_sync
 #define parallel_main main
-#define sppr_parallel_for _Pragma("omp parallel for") for
-#define sppr_parallel_for_1 _Pragma("omp parallel for schedule (static,1)") for
-#define sppr_parallel_for_256 _Pragma("omp parallel for schedule (static,256)") for
+#define sppr_parallel_for SPPR_PRAGMA("omp parallel for") for
+#define sppr_parallel_for_1 SPPR_PRAGMA("omp parallel for schedule (static,1)") for
+#define sppr_parallel_for_256 SPPR_PRAGMA("omp parallel for schedule (static,256)") for
 
 static int getWorkers() { return omp_get_max_threads(); }
 static void setWorkers(int n) { omp_set_num_threads(n); }

@@ -396,7 +396,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_mbk(
         added_nodes += itv.first;
     }
     if (added_nodes < data.num_nodes) {
-        // Data was likely a .bq file so need to repeat blocks   
+        // Data was likely a .bq file so need to repeat blocks
         for (const auto& itv : block_intervals) {
             // itv = { interval_length, block_index }
             graph.add_node(itv.first, itv.second);
@@ -426,11 +426,11 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_pr(
     if (!std::is_same<Cap, int32_t>::value) {
         throw std::runtime_error("Only int32_t cap is supported for ppr");
     }
-    /*auto build_begin = now();   
+    /*auto build_begin = now();
     reimpls::ParallelPushRelabel<int32_t, int64_t, Index, Index> graph(
         data.num_nodes + 2, data.neighbor_arcs.size() + data.terminal_arcs.size());
     graph.set_source(0);
-    graph.set_sink(1);    
+    graph.set_sink(1);
 
     for (const auto& tarc : data.terminal_arcs) {
         graph.add_edge(0, tarc.node + 2, tarc.source_cap, 0);
@@ -446,7 +446,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_pr(
     auto solve_begin = now();
     graph.mincut();
     Duration solve_dur = now() - solve_begin;
-    
+
     return std::make_tuple(graph.get_flow(), build_dur.count(), solve_dur.count(), data.num_nodes);*/
 
     auto build_begin = now();
@@ -510,7 +510,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_pr(
 
         arc_weights[offsets[narc.i + 2]] = narc.cap;
         arc_weights[offsets[narc.j + 2]] = narc.rev_cap;
-        
+
         offsets[narc.i + 2]++;
         offsets[narc.j + 2]++;
     }
@@ -532,7 +532,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_pr(
     flow += maxFlow();
     Duration solve_dur = now() - solve_begin;
 
-    return std::make_tuple(flow, build_dur.count(), solve_dur.count(), data.num_nodes); 
+    return std::make_tuple(flow, build_dur.count(), solve_dur.count(), data.num_nodes);
 }
 
 template <class Cap, class Term, class Flow, class Index, class Data>
@@ -558,7 +558,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_sk(
     for (auto& block : node_blocks) {
         block = std::min<uint16_t>(block / blocks_per_thread, num_threads - 1);
     }
-   
+
     // Find nodes we need to make shared across multiple blocks
     std::vector<robin_hood::unordered_set<uint64_t>> extra_block_nodes(num_threads);
     for (const auto& narc : data.neighbor_arcs) {
@@ -603,7 +603,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_sk(
             graph.add_edge(narc.i, narc.j, narc.cap * 2, narc.rev_cap * 2);
         }
     }
-   
+
     Duration build_dur = now() - build_begin;
 
     auto solve_begin = now();
@@ -621,7 +621,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     constexpr int sink = 1;
     const char *splitter_file = "pard_tmp_splitter";
     const int d = 1;
-    const int size[] = { data.num_nodes };
+    int size[] = { data.num_nodes };
 
     // Remove previous output directory
     // TODO: Use proper C++ function so this works across on Windows too.
@@ -629,7 +629,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     rm_command += splitter_file;
     rm_command += "_reg";
     system(rm_command.c_str());
-    
+
     if (node_blocks.size() < data.num_nodes) {
         // Data was likely as .bq file so need to repeat blocks
         auto old_size = node_blocks.size();
@@ -649,9 +649,9 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     for (auto& block : node_blocks) {
         block = std::min<uint16_t>(block / blocks_per_thread, num_threads - 1);
     }
-    
+
     auto build_begin = now();
-    
+
     region_graph G;
     G.pth = std::string(splitter_file) + "_reg";
     region_splitter2 splitter(splitter_file, &G, num_threads, node_blocks);
@@ -675,11 +675,11 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     splitter.allocate3();
 
     Duration build_dur = now() - build_begin;
-    
+
     //auto solve_begin = now();
     int flow = pard.maxflow();
     //Duration solve_dur = now() - solve_begin;
-    
+
     // Remove output directory since we're done
     system(rm_command.c_str());
 
@@ -709,7 +709,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_eibfs(
         added_nodes += itv.first;
     }
     if (added_nodes < data.num_nodes) {
-        // Data was likely a .bq file so need to repeat blocks   
+        // Data was likely a .bq file so need to repeat blocks
         for (const auto& itv : block_intervals) {
             // itv = { interval_length, block_index }
             graph.registerNodes(added_nodes, added_nodes + itv.first, itv.second);
@@ -806,14 +806,14 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
 
     for (size_t i = 0; i < bench_config.num_run; i++) {
         print_data_config_values(data_config);
-        print_data_sizes(data);               
+        print_data_sizes(data);
         print_bench_config_values<Cap, Term, Flow, Index>(bench_config);
 
         uint16_t used_blocks;
         switch (bench_config.algo) {
         // Serial algorithms
         case ALGO_BK:
-            std::tie(flow, build_time, solve_time) = 
+            std::tie(flow, build_time, solve_time) =
                 bench_bk<Cap, Term, Flow, Index, Data>(bench_config, data);
             break;
 	case ALGO_NBK:

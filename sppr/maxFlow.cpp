@@ -49,6 +49,10 @@ const float globUpdtFreq = 3.0;
 #include <condition_variable>
 #include <thread>
 
+#ifdef _MSC_VER
+#include <intrin.h> // For _InterlockedCompareExchange
+#endif
+
 //#include <unistd.h>
 
 using namespace std;
@@ -92,9 +96,12 @@ typedef long long ll;
 template <typename T>
 inline bool CAS(T* x, T y, T z) {
     if (*x != y) return 0; // double-check
+#ifdef _MSC_VER
+    static_assert(sizeof(T) == sizeof(long), "Size of T must be same as size of long");
+    return _InterlockedCompareExchange((long *)(x), (long)(z), (long)(y)) == (long)(y);
+#else
     return __sync_bool_compare_and_swap(x, y, z);
-    //static_assert(sizeof(T) == sizeof(long), "Size of T must be same as size of long");
-    //return _InterlockedCompareExchange((long *)(x), (long)(z), (long)(y)) == (long)(y);
+#endif
 }
 
 template <typename T, typename P, typename F>
@@ -1279,3 +1286,4 @@ intT maxFlow(FlowGraph<intT>& g) {
     prepareMaxFlow(g);
     return maxFlow();
 }
+                 
