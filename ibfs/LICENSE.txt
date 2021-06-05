@@ -1,0 +1,5 @@
+This software can be used for research purposes only.
+If you use this software for research purposes, you should cite the aforementioned papers
+in any resulting publication and appropriately credit it.
+
+If you require another license, please contact the above.

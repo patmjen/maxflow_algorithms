@@ -1,3 +1,34 @@
+/* LICENSE
+ *
+ * The source code is subject to the following academic license.
+ * Note this is not an open source license.
+ *
+ * Copyright © 2001. The Regents of the University of California (Regents).
+ * All Rights Reserved.
+ *
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for educational, research, and not-for-profit purposes,
+ * without fee and without a signed licensing agreement, is hereby granted,
+ * provided that the above copyright notice, this paragraph and the following
+ * two paragraphs appear in all copies, modifications, and distributions.
+ * Contact The Office of Technology Licensing, UC Berkeley, 2150 Shattuck
+ * Avenue, Suite 510, Berkeley, CA 94720-1620, (510) 643-7201, for commercial
+ * licensing opportunities. Created by Bala Chandran and Dorit S. Hochbaum,
+ * Department of Industrial Engineering and Operations Research,
+ * University of California, Berkeley.
+ *
+ * IN NO EVENT SHALL REGENTS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+ * SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
+ * ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+ * REGENTS HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE. THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ * HEREUNDER IS PROVIDED "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE
+ * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ */
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -13,7 +44,7 @@ typedef long int lint;
 typedef long long int llint;
 typedef unsigned long long int ullint;
 
-double 
+double
 timer (void)
 {
   struct rusage r;
@@ -24,7 +55,7 @@ timer (void)
 
 struct node;
 
-typedef struct arc 
+typedef struct arc
 {
 	struct node *from;
 	struct node *to;
@@ -33,7 +64,7 @@ typedef struct arc
 	uint direction;
 } Arc;
 
-typedef struct node 
+typedef struct node
 {
 	uint visited;
 	uint numAdjacent;
@@ -51,7 +82,7 @@ typedef struct node
 } Node;
 
 
-typedef struct root 
+typedef struct root
 {
 	Node *start;
 	Node *end;
@@ -85,15 +116,15 @@ static ullint numArcScans = 0;
 
 #ifdef DISPLAY_CUT
 static void
-displayCut (const uint gap) 
+displayCut (const uint gap)
 {
 	uint i;
 
 	printf("c\nc Nodes in source set of min s-t cut:\n");
 
-	for (i=0; i<numNodes; ++i) 
+	for (i=0; i<numNodes; ++i)
 	{
-		if (adjacencyList[i].label >= gap) 
+		if (adjacencyList[i].label >= gap)
 		{
 			printf("n %d\n", adjacencyList[i].number);
 		}
@@ -103,13 +134,13 @@ displayCut (const uint gap)
 
 #ifdef DISPLAY_FLOW
 static void
-displayFlow (void) 
+displayFlow (void)
 {
 	uint i;
 
 	printf("c\nc Flow values on each arc:\n");
 
-	for (i=0; i<numArcs; ++i) 
+	for (i=0; i<numArcs; ++i)
 	{
 		printf("a %d %d %d\n", arcList[i].from->number, arcList[i].to->number, arcList[i].flow);
 	}
@@ -135,7 +166,7 @@ initializeNode (Node *nd, const uint n)
 }
 
 static void
-initializeRoot (Root *rt) 
+initializeRoot (Root *rt)
 {
 	rt->start = NULL;
 	rt->end = NULL;
@@ -143,7 +174,7 @@ initializeRoot (Root *rt)
 
 
 static void
-freeRoot (Root *rt) 
+freeRoot (Root *rt)
 {
 	rt->start = NULL;
 	rt->end = NULL;
@@ -151,18 +182,18 @@ freeRoot (Root *rt)
 
 #ifndef LOWEST_LABEL
 static void
-liftAll (Node *rootNode) 
+liftAll (Node *rootNode)
 {
 	Node *temp, *current=rootNode;
 
 	current->nextScan = current->childList;
 
 	-- labelCount[current->label];
-	current->label = numNodes;	
+	current->label = numNodes;
 
 	for ( ; (current); current = current->parent)
 	{
-		while (current->nextScan) 
+		while (current->nextScan)
 		{
 			temp = current->nextScan;
 			current->nextScan = current->nextScan->next;
@@ -170,7 +201,7 @@ liftAll (Node *rootNode)
 			current->nextScan = current->childList;
 
 			-- labelCount[current->label];
-			current->label = numNodes;	
+			current->label = numNodes;
 		}
 	}
 }
@@ -178,7 +209,7 @@ liftAll (Node *rootNode)
 
 #ifdef FIFO_BUCKET
 static void
-addToStrongBucket (Node *newRoot, Root *rootBucket) 
+addToStrongBucket (Node *newRoot, Root *rootBucket)
 {
 	if (rootBucket->start)
 	{
@@ -197,8 +228,8 @@ addToStrongBucket (Node *newRoot, Root *rootBucket)
 #else
 
 static void
-addToStrongBucket (Node *newRoot, Root *rootBucket) 
-{	
+addToStrongBucket (Node *newRoot, Root *rootBucket)
+{
 	newRoot->next = rootBucket->start;
 	rootBucket->start = newRoot;
 }
@@ -228,14 +259,14 @@ initializeArc (Arc *ac)
 }
 
 static void
-addOutOfTreeNode (Node *n, Arc *out) 
+addOutOfTreeNode (Node *n, Arc *out)
 {
 	n->outOfTree[n->numOutOfTree] = out;
 	++ n->numOutOfTree;
 }
 
 static void
-readDimacsFileCreateList (FILE *stream) 
+readDimacsFileCreateList (FILE *stream)
 {
 	uint lineLength=1024, i, capacity, numLines = 0, from, to, first=0, last=0;
 	char *line, *word, ch, ch1;
@@ -315,7 +346,7 @@ readDimacsFileCreateList (FILE *stream)
 
 				++ first;
 			}
-			else 
+			else
 			{
 				arcList[last].from = &adjacencyList[from-1];
 				arcList[last].to = &adjacencyList[to-1];
@@ -334,11 +365,11 @@ readDimacsFileCreateList (FILE *stream)
 
 			if (ch1 == 's')
 			{
-				source = i;	
+				source = i;
 			}
 			else if (ch1 == 't')
 			{
-				sink = i;	
+				sink = i;
 			}
 			else
 			{
@@ -350,20 +381,20 @@ readDimacsFileCreateList (FILE *stream)
 		}
 	}
 
-	for (i=0; i<numNodes; ++i) 
+	for (i=0; i<numNodes; ++i)
 	{
 		createOutOfTree (&adjacencyList[i]);
 	}
 
-	for (i=0; i<numArcs; i++) 
+	for (i=0; i<numArcs; i++)
 	{
 		to = arcList[i].to->number;
 		from = arcList[i].from->number;
 		capacity = arcList[i].capacity;
 
-		if (!((source == to) || (sink == from) || (from == to))) 
+		if (!((source == to) || (sink == from) || (from == to)))
 		{
-			if ((source == from) && (to == sink)) 
+			if ((source == from) && (to == sink))
 			{
 				arcList[i].flow = capacity;
 			}
@@ -408,13 +439,13 @@ readDimacsFileCreateList(const char *fname)
 }
 
 static void
-simpleInitialization (void) 
+simpleInitialization (void)
 {
 	uint i, size;
 	Arc *tempArc;
 
 	size = adjacencyList[source-1].numOutOfTree;
-	for (i=0; i<size; ++i) 
+	for (i=0; i<size; ++i)
 	{
 		tempArc = adjacencyList[source-1].outOfTree[i];
 		tempArc->flow = tempArc->capacity;
@@ -432,9 +463,9 @@ simpleInitialization (void)
 	adjacencyList[source-1].excess = 0;
 	adjacencyList[sink-1].excess = 0;
 
-	for (i=0; i<numNodes; ++i) 
+	for (i=0; i<numNodes; ++i)
 	{
-		if (adjacencyList[i].excess > 0) 
+		if (adjacencyList[i].excess > 0)
 		{
 		    adjacencyList[i].label = 1;
 			++ labelCount[1];
@@ -448,8 +479,8 @@ simpleInitialization (void)
 	labelCount[0] = (numNodes - 2) - labelCount[1];
 }
 
-static inline int 
-addRelationship (Node *newParent, Node *child) 
+static inline int
+addRelationship (Node *newParent, Node *child)
 {
 	child->parent = newParent;
 	child->next = newParent->childList;
@@ -459,13 +490,13 @@ addRelationship (Node *newParent, Node *child)
 }
 
 static inline void
-breakRelationship (Node *oldParent, Node *child) 
+breakRelationship (Node *oldParent, Node *child)
 {
 	Node *current;
 
 	child->parent = NULL;
 
-	if (oldParent->childList == child) 
+	if (oldParent->childList == child)
 	{
 		oldParent->childList = child->next;
 		child->next = NULL;
@@ -479,7 +510,7 @@ breakRelationship (Node *oldParent, Node *child)
 }
 
 static void
-merge (Node *parent, Node *child, Arc *newArc) 
+merge (Node *parent, Node *child, Arc *newArc)
 {
 	Arc *oldArc;
 	Node *current = child, *oldParent, *newParent = parent;
@@ -488,7 +519,7 @@ merge (Node *parent, Node *child, Arc *newArc)
 	++ numMergers;
 #endif
 
-	while (current->parent) 
+	while (current->parent)
 	{
 		oldArc = current->arcToParent;
 		current->arcToParent = newArc;
@@ -506,14 +537,14 @@ merge (Node *parent, Node *child, Arc *newArc)
 }
 
 
-static inline void 
-pushUpward (Arc *currentArc, Node *child, Node *parent, const uint resCap) 
+static inline void
+pushUpward (Arc *currentArc, Node *child, Node *parent, const uint resCap)
 {
 #ifdef STATS
 	++ numPushes;
 #endif
 
-	if (resCap >= child->excess) 
+	if (resCap >= child->excess)
 	{
 		parent->excess += child->excess;
 		currentArc->flow += child->excess;
@@ -538,13 +569,13 @@ pushUpward (Arc *currentArc, Node *child, Node *parent, const uint resCap)
 
 
 static inline void
-pushDownward (Arc *currentArc, Node *child, Node *parent, uint flow) 
+pushDownward (Arc *currentArc, Node *child, Node *parent, uint flow)
 {
 #ifdef STATS
 	++ numPushes;
 #endif
 
-	if (flow >= child->excess) 
+	if (flow >= child->excess)
 	{
 		parent->excess += child->excess;
 		currentArc->flow -= child->excess;
@@ -568,26 +599,26 @@ pushDownward (Arc *currentArc, Node *child, Node *parent, uint flow)
 }
 
 static void
-pushExcess (Node *strongRoot) 
+pushExcess (Node *strongRoot)
 {
 	Node *current, *parent;
 	Arc *arcToParent;
 	int prevEx=1;
 
-	for (current = strongRoot; (current->excess && current->parent); current = parent) 
+	for (current = strongRoot; (current->excess && current->parent); current = parent)
 	{
 		parent = current->parent;
 		prevEx = parent->excess;
-		
+
 		arcToParent = current->arcToParent;
 
 		if (arcToParent->direction)
 		{
-			pushUpward (arcToParent, current, parent, (arcToParent->capacity - arcToParent->flow)); 
+			pushUpward (arcToParent, current, parent, (arcToParent->capacity - arcToParent->flow));
 		}
 		else
 		{
-			pushDownward (arcToParent, current, parent, arcToParent->flow); 
+			pushDownward (arcToParent, current, parent, arcToParent->flow);
 		}
 	}
 
@@ -603,14 +634,14 @@ pushExcess (Node *strongRoot)
 
 
 static Arc *
-findWeakNode (Node *strongNode, Node **weakNode) 
+findWeakNode (Node *strongNode, Node **weakNode)
 {
 	uint i, size;
 	Arc *out;
 
 	size = strongNode->numOutOfTree;
 
-	for (i=strongNode->nextArc; i<size; ++i) 
+	for (i=strongNode->nextArc; i<size; ++i)
 	{
 
 #ifdef STATS
@@ -618,9 +649,9 @@ findWeakNode (Node *strongNode, Node **weakNode)
 #endif
 
 #ifdef LOWEST_LABEL
-		if (strongNode->outOfTree[i]->to->label == (lowestStrongLabel-1)) 
+		if (strongNode->outOfTree[i]->to->label == (lowestStrongLabel-1))
 #else
-		if (strongNode->outOfTree[i]->to->label == (highestStrongLabel-1)) 
+		if (strongNode->outOfTree[i]->to->label == (highestStrongLabel-1))
 #endif
 		{
 			strongNode->nextArc = i;
@@ -631,9 +662,9 @@ findWeakNode (Node *strongNode, Node **weakNode)
 			return (out);
 		}
 #ifdef LOWEST_LABEL
-		else if (strongNode->outOfTree[i]->from->label == (lowestStrongLabel-1)) 
+		else if (strongNode->outOfTree[i]->from->label == (lowestStrongLabel-1))
 #else
-		else if (strongNode->outOfTree[i]->from->label == (highestStrongLabel-1)) 
+		else if (strongNode->outOfTree[i]->from->label == (highestStrongLabel-1))
 #endif
 		{
 			strongNode->nextArc = i;
@@ -652,7 +683,7 @@ findWeakNode (Node *strongNode, Node **weakNode)
 
 
 static void
-checkChildren (Node *curNode) 
+checkChildren (Node *curNode)
 {
 	for ( ; (curNode->nextScan); curNode->nextScan = curNode->nextScan->next)
 	{
@@ -660,8 +691,8 @@ checkChildren (Node *curNode)
 		{
 			return;
 		}
-		
-	}	
+
+	}
 
 	-- labelCount[curNode->label];
 	++	curNode->label;
@@ -675,7 +706,7 @@ checkChildren (Node *curNode)
 }
 
 static void
-processRoot (Node *strongRoot) 
+processRoot (Node *strongRoot)
 {
 	Node *temp, *strongNode = strongRoot, *weakNode;
 	Arc *out;
@@ -690,10 +721,10 @@ processRoot (Node *strongRoot)
 	}
 
 	checkChildren (strongRoot);
-	
+
 	while (strongNode)
 	{
-		while (strongNode->nextScan) 
+		while (strongNode->nextScan)
 		{
 			temp = strongNode->nextScan;
 			strongNode->nextScan = strongNode->nextScan->next;
@@ -725,19 +756,19 @@ processRoot (Node *strongRoot)
 
 #ifdef LOWEST_LABEL
 static Node *
-getLowestStrongRoot (void) 
+getLowestStrongRoot (void)
 {
 	uint i;
 	Node *strongRoot;
 
 	if (lowestStrongLabel == 0)
 	{
-		while (strongRoots[0].start) 
+		while (strongRoots[0].start)
 		{
 			strongRoot = strongRoots[0].start;
 			strongRoots[0].start = strongRoot->next;
 			strongRoot->next = NULL;
-				
+
 			strongRoot->label = 1;
 
 #ifdef STATS
@@ -746,19 +777,19 @@ getLowestStrongRoot (void)
 
 			-- labelCount[0];
 			++ labelCount[1];
-	
-			addToStrongBucket (strongRoot, &strongRoots[strongRoot->label]);		
-		}	
+
+			addToStrongBucket (strongRoot, &strongRoots[strongRoot->label]);
+		}
 		lowestStrongLabel = 1;
 	}
 
-	for (i=lowestStrongLabel; i<numNodes; ++i) 
+	for (i=lowestStrongLabel; i<numNodes; ++i)
 	{
-		if (strongRoots[i].start)  
+		if (strongRoots[i].start)
 		{
 			lowestStrongLabel = i;
 
-			if (labelCount[i-1] == 0) 
+			if (labelCount[i-1] == 0)
 			{
 #ifdef STATS
 				++ numGaps;
@@ -769,7 +800,7 @@ getLowestStrongRoot (void)
 			strongRoot = strongRoots[i].start;
 			strongRoots[i].start = strongRoot->next;
 			strongRoot->next = NULL;
-			return strongRoot;				
+			return strongRoot;
 		}
 	}
 
@@ -780,25 +811,25 @@ getLowestStrongRoot (void)
 #else
 
 static Node *
-getHighestStrongRoot (void) 
+getHighestStrongRoot (void)
 {
 	uint i;
 	Node *strongRoot;
 
-	for (i=highestStrongLabel; i>0; --i) 
+	for (i=highestStrongLabel; i>0; --i)
 	{
-		if (strongRoots[i].start)  
+		if (strongRoots[i].start)
 		{
 			highestStrongLabel = i;
-			if (labelCount[i-1]) 
+			if (labelCount[i-1])
 			{
 				strongRoot = strongRoots[i].start;
 				strongRoots[i].start = strongRoot->next;
 				strongRoot->next = NULL;
-				return strongRoot;				
+				return strongRoot;
 			}
 
-			while (strongRoots[i].start) 
+			while (strongRoots[i].start)
 			{
 
 #ifdef STATS
@@ -811,12 +842,12 @@ getHighestStrongRoot (void)
 		}
 	}
 
-	if (!strongRoots[0].start) 
+	if (!strongRoots[0].start)
 	{
 		return NULL;
 	}
 
-	while (strongRoots[0].start) 
+	while (strongRoots[0].start)
 	{
 		strongRoot = strongRoots[0].start;
 		strongRoots[0].start = strongRoot->next;
@@ -828,8 +859,8 @@ getHighestStrongRoot (void)
 		++ numRelabels;
 #endif
 
-		addToStrongBucket (strongRoot, &strongRoots[strongRoot->label]);		
-	}	
+		addToStrongBucket (strongRoot, &strongRoots[strongRoot->label]);
+	}
 
 	highestStrongLabel = 1;
 
@@ -837,32 +868,32 @@ getHighestStrongRoot (void)
 	strongRoots[1].start = strongRoot->next;
 	strongRoot->next = NULL;
 
-	return strongRoot;	
+	return strongRoot;
 }
 
 #endif
 
 static void
-pseudoflowPhase1 (void) 
+pseudoflowPhase1 (void)
 {
 	Node *strongRoot;
 
 #ifdef LOWEST_LABEL
-	while ((strongRoot = getLowestStrongRoot ()))  
+	while ((strongRoot = getLowestStrongRoot ()))
 #else
-	while ((strongRoot = getHighestStrongRoot ()))  
+	while ((strongRoot = getHighestStrongRoot ()))
 #endif
-	{ 
+	{
 		processRoot (strongRoot);
 	}
 }
 
 static void
-checkOptimality (const uint gap) 
+checkOptimality (const uint gap)
 {
 	uint i, check = 1;
 	ullint mincut = 0;
-	llint *excess = NULL; 
+	llint *excess = NULL;
 
 	excess = (llint *) malloc (numNodes * sizeof (llint));
 	if (!excess)
@@ -876,17 +907,17 @@ checkOptimality (const uint gap)
 		excess[i] = 0;
 	}
 
-	for (i=0; i<numArcs; ++i) 
+	for (i=0; i<numArcs; ++i)
 	{
 		if ((arcList[i].from->label >= gap) && (arcList[i].to->label < gap))
 		{
 			mincut += arcList[i].capacity;
 		}
 
-		if ((arcList[i].flow > arcList[i].capacity) || (arcList[i].flow < 0)) 
+		if ((arcList[i].flow > arcList[i].capacity) || (arcList[i].flow < 0))
 		{
 			check = 0;
-			printf("c Capacity constraint violated on arc (%d, %d). Flow = %d, capacity = %d\n", 
+			printf("c Capacity constraint violated on arc (%d, %d). Flow = %d, capacity = %d\n",
 				arcList[i].from->number,
 				arcList[i].to->number,
 				arcList[i].flow,
@@ -896,14 +927,14 @@ checkOptimality (const uint gap)
 		excess[arcList[i].to->number - 1] += arcList[i].flow;
 	}
 
-	for (i=0; i<numNodes; i++) 
+	for (i=0; i<numNodes; i++)
 	{
-		if ((i != (source-1)) && (i != (sink-1))) 
+		if ((i != (source-1)) && (i != (sink-1)))
 		{
-			if (excess[i]) 
+			if (excess[i])
 			{
 				check = 0;
-				printf ("c Flow balance constraint violated in node %d. Excess = %lld\n", 
+				printf ("c Flow balance constraint violated in node %d. Excess = %lld\n",
 					i+1,
 					excess[i]);
 			}
@@ -917,13 +948,13 @@ checkOptimality (const uint gap)
 
 	check = 1;
 
-	if (excess[sink-1] != mincut) 
+	if (excess[sink-1] != mincut)
 	{
 		check = 0;
 		printf("c Flow is not optimal - max flow does not equal min cut!\nc\n");
 	}
 
-	if (check) 
+	if (check)
 	{
 		printf ("c\nc Solution checks as optimal.\nc \n");
 		printf ("s Max Flow            : %lld\n", mincut);
@@ -966,12 +997,12 @@ quickSort (Arc **arr, const uint first, const uint last)
 
 	mid = (first+last)/2;
 
-	x1 = arr[first]->flow; 
-	x2 = arr[mid]->flow; 
+	x1 = arr[first]->flow;
+	x2 = arr[mid]->flow;
 	x3 = arr[last]->flow;
 
 	pivot = mid;
-	
+
 	if (x1 <= x2)
 	{
 		if (x2 > x3)
@@ -1028,7 +1059,7 @@ quickSort (Arc **arr, const uint first, const uint last)
 	{
 		quickSort (arr, first, (left-1));
 	}
-	
+
 	if ((left+1) < last)
 	{
 		quickSort (arr, (left+1), last);
@@ -1045,7 +1076,7 @@ sort (Node * current)
 }
 
 static void
-minisort (Node *current) 
+minisort (Node *current)
 {
 	Arc *temp = current->outOfTree[current->nextArc];
 	uint i, size = current->numOutOfTree, tempflow = temp->flow;
@@ -1058,13 +1089,13 @@ minisort (Node *current)
 }
 
 static void
-decompose (Node *excessNode, const uint source, uint *iteration) 
+decompose (Node *excessNode, const uint source, uint *iteration)
 {
 	Node *current = excessNode;
 	Arc *tempArc;
 	uint bottleneck = excessNode->excess;
 
-	for ( ;(current->number != source) && (current->visited < (*iteration)); 
+	for ( ;(current->number != source) && (current->visited < (*iteration));
 				current = tempArc->from)
 	{
 		current->visited = (*iteration);
@@ -1076,21 +1107,21 @@ decompose (Node *excessNode, const uint source, uint *iteration)
 		}
 	}
 
-	if (current->number == source) 
+	if (current->number == source)
 	{
 		excessNode->excess -= bottleneck;
 		current = excessNode;
 
-		while (current->number != source) 
+		while (current->number != source)
 		{
 			tempArc = current->outOfTree[current->nextArc];
 			tempArc->flow -= bottleneck;
 
-			if (tempArc->flow) 
+			if (tempArc->flow)
 			{
 				minisort(current);
 			}
-			else 
+			else
 			{
 				++ current->nextArc;
 			}
@@ -1113,8 +1144,8 @@ decompose (Node *excessNode, const uint source, uint *iteration)
 			bottleneck = tempArc->flow;
 		}
 		current = tempArc->from;
-	}	
-	
+	}
+
 	++ (*iteration);
 
 	while (current->visited < (*iteration))
@@ -1124,12 +1155,12 @@ decompose (Node *excessNode, const uint source, uint *iteration)
 		tempArc = current->outOfTree[current->nextArc];
 		tempArc->flow -= bottleneck;
 
-		if (tempArc->flow) 
+		if (tempArc->flow)
 		{
 			minisort(current);
 			current = tempArc->from;
 		}
-		else 
+		else
 		{
 			++ current->nextArc;
 			current = tempArc->from;
@@ -1144,14 +1175,14 @@ recoverFlow (const uint gap)
 	Arc *tempArc;
 	Node *tempNode;
 
-	for (i=0; i<adjacencyList[sink-1].numOutOfTree; ++i) 
+	for (i=0; i<adjacencyList[sink-1].numOutOfTree; ++i)
 	{
 		tempArc = adjacencyList[sink-1].outOfTree[i];
-		if (tempArc->from->excess < 0) 
+		if (tempArc->from->excess < 0)
 		{
 			if ((tempArc->from->excess + (int) tempArc->flow)  < 0)
 			{
-				tempArc->from->excess += (int) tempArc->flow;				
+				tempArc->from->excess += (int) tempArc->flow;
 				tempArc->flow = 0;
 			}
 			else
@@ -1159,10 +1190,10 @@ recoverFlow (const uint gap)
 				tempArc->flow = (uint) (tempArc->from->excess + (int) tempArc->flow);
 				tempArc->from->excess = 0;
 			}
-		}	
+		}
 	}
 
-	for (i=0; i<adjacencyList[source-1].numOutOfTree; ++i) 
+	for (i=0; i<adjacencyList[source-1].numOutOfTree; ++i)
 	{
 		tempArc = adjacencyList[source-1].outOfTree[i];
 		addOutOfTreeNode (tempArc->to, tempArc);
@@ -1171,7 +1202,7 @@ recoverFlow (const uint gap)
 	adjacencyList[source-1].excess = 0;
 	adjacencyList[sink-1].excess = 0;
 
-	for (i=0; i<numNodes; ++i) 
+	for (i=0; i<numNodes; ++i)
 	{
 		tempNode = &adjacencyList[i];
 
@@ -1180,7 +1211,7 @@ recoverFlow (const uint gap)
 			continue;
 		}
 
-		if (tempNode->label >= gap) 
+		if (tempNode->label >= gap)
 		{
 			tempNode->nextArc = 0;
 			if ((tempNode->parent) && (tempNode->arcToParent->flow))
@@ -1188,9 +1219,9 @@ recoverFlow (const uint gap)
 				addOutOfTreeNode (tempNode->arcToParent->to, tempNode->arcToParent);
 			}
 
-			for (j=0; j<tempNode->numOutOfTree; ++j) 
+			for (j=0; j<tempNode->numOutOfTree; ++j)
 			{
-				if (!tempNode->outOfTree[j]->flow) 
+				if (!tempNode->outOfTree[j]->flow)
 				{
 					-- tempNode->numOutOfTree;
 					tempNode->outOfTree[j] = tempNode->outOfTree[tempNode->numOutOfTree];
@@ -1202,10 +1233,10 @@ recoverFlow (const uint gap)
 		}
 	}
 
-	for (i=0; i<numNodes; ++i) 
+	for (i=0; i<numNodes; ++i)
 	{
 		tempNode = &adjacencyList[i];
-		while (tempNode->excess > 0) 
+		while (tempNode->excess > 0)
 		{
 			++ iteration;
 			decompose(tempNode, source, &iteration);
@@ -1243,8 +1274,8 @@ freeMemory (void)
 
 } // namespace hpf
 
-int 
-main(int argc, char ** argv) 
+int
+main(int argc, char ** argv)
 {
 	using namespace hpf;
 	double readStart, readEnd, initStart, initEnd, solveStart, solveEnd, flowStart, flowEnd;

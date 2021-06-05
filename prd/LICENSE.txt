@@ -1,0 +1,7 @@
+From https://cmp.felk.cvut.cz/~shekhovt/d_maxflow/index.html
+
+Copyright 2011 Alexander Shekhovtsov (shekhovt@fel.cvut.cz), Vaclav Hlavac (hlavac@fel.cvut.cz)
+
+There are no warranties and we take no responsibility.
+This version of software cannot be used for commercial purposes.
+Please contact the authors about other usage.
