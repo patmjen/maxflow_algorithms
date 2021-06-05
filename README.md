@@ -1,5 +1,7 @@
 # Max-Flow/Min-Cut Algorithms
 
+[![DOI](https://zenodo.org/badge/373525232.svg)](https://zenodo.org/badge/latestdoi/373525232)
+
 This is a collection of min-cut/max-flow algorithms which can used for benchmarking min-cut/max-flow algoriths. The collection is released in companionship with the paper:
 
 * Jensen et al., "Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision", 2021 (Under review).
