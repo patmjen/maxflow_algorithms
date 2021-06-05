@@ -4,6 +4,14 @@ This is a collection of min-cut/max-flow algorithms which can used for benchmark
 
 * Jensen et al., "Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision", 2021 (Under review).
 
+## Contents
+
+* [Implemented Algorithms](#Implemented-Algorithms)
+* [Programs](#Programs)
+* [How to Build](#How-to-Build)
+* [Licences](#Licences)
+* [Binary File Formats](#Binary-File-Formats)
+
 ## Implemented Algorithms
 
 This collection includes the following implementations:
