@@ -1,0 +1,43 @@
+{
+  "name": "serial example",
+  "num_run": 10,
+  "types": [
+    {
+      "cap": "int32",
+      "term": "int32",
+      "flow": "int64",
+      "index":  "int32"
+    }
+  ],
+  "algorithms": [
+    "mbk",
+    "hpf",
+    "eibfs"
+  ],
+  "data_sets": [
+    {
+      "file_name": "data/104_0412_16bins.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    },
+    {
+      "file_name": "data/KZ2-tsukuba0.max",
+      "file_type": "dimacs",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    },
+    {
+      "file_name": "data/bone.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    },
+    {
+      "file_name": "data/liver.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    }
+  ]
+}

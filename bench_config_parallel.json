@@ -1,0 +1,35 @@
+{
+  "name": "parallel example",
+  "num_run": 3,
+  "types": [
+    {
+      "cap": "int32",
+      "term": "int32",
+      "flow": "int64",
+      "index":  "int32"
+    }
+  ],
+  "algorithms": [
+    "mbk",
+    "pmbk"
+  ],
+  "parallel": {
+    "threads": [
+        1, 2, 4, 8
+    ]
+  },
+  "data_sets": [
+    {
+      "file_name": "data/bone.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    },
+    {
+      "file_name": "data/liver.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32"
+    }
+  ]
+}

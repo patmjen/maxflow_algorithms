@@ -61,6 +61,34 @@ We provide three programs:
   usage: bench <json_config>
   ```
 
+  The json config file should contain the following fields:
+
+  * `name`: The benchmark name.
+  * `num_run`: How many times to run each algorithm on each dataset.
+  * `types`: List of types that the algorithms are to use. Each entry must have the form
+
+    ```json
+    {
+      "cap": "<Type for arc capacities. Can be int32 or int64>",
+      "term": "<Type for terminal arc capacities. Can be int32 or int64>",
+      "flow": "<Type for the final maxflow. Can be int64>",
+      "index": "<Type for indices. Can be uint32, int32, uint64, or int64>"
+    }
+    ```
+
+  * `algorithms`: List of algorithms to use. Entries follow the abbreviations in [Implemented Algorithms](#Implemented-Algorithms).
+  * `data_sets`: List of entries specifying the problem instances to run on. Each entry must have the form
+
+    ```json
+    {
+      "file_name": "<Path to file name.>",
+      "file_type": "<Type of file. Can be 'bbk', 'bq', or 'dimacs'>",
+      "nbor_cap_type": "<Type of neighbor arc capacities>",
+      "term_cap_type": "<Type of terminal arc capacities>"
+    }
+    ```
+  * `parallel`: If parallel algorithms are run, this field configures properties specific for those. It must include a `threads` field giving a list of the number of threads to run with for each problem instance and each parallel algorithm.
+
 * **`bench_io`**: Allows for converting between the different file formats. Usage:
 
   ```txt
