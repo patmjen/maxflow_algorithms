@@ -6,6 +6,8 @@ This is a collection of min-cut/max-flow algorithms which can used for benchmark
 
 * Jensen et al., "Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision", 2021 (Under review).
 
+If you make use of these, remember to also cite the relevant papers.
+
 ## Contents
 
 * [Implemented Algorithms](#Implemented-Algorithms)
@@ -110,9 +112,9 @@ The programs should then be in the `build` directory.
 
 ## Licences
 
-We provide our re-implementations under the MIT license (see license file in `reimpls`). Not that the `robin_hood` hashtable (in `robin_hood.h`) is not developed by us but is also released under its own MIT license (see the file).
+We provide our re-implementations under the MIT license (see license file in `reimpls`), except for `hpf.h`, `ibfs.h`, and `ibfs2.h` which have their own licenses. Note that the `robin_hood` hashtable (in `robin_hood.h`) is not developed by us but is also released under its own MIT license (see the file).
 
-The original author implementations are released under their own licenses. Where available, licenses are provided in the respective directories and we list them below for convenience. Note that this is not legal advice - double check yourself before use.
+The original author implementations are released under their own licenses. Where available, licenses are provided in the respective directories and we list them below for convenience. Note that this is not legal advice - double check yourself before use. Where a license was available, they allow for research purposes but most disallow commercial use.
 
 * `bk`: GPLv3 license.
 * `hi_pr`: Own license.

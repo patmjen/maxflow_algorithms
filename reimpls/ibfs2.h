@@ -1,6 +1,8 @@
 /*
 This software has been modified by Hossam Isack <isack.hossam@gmail.com> and Karin Ng <karinng10@gmail.com>,
 to handle large graphs and to allow graph rests (to avoid reallocating memeory when weights change).
+It has further been updated by Patrick M. Jensen <patmjen@dtu.dk> and Niels Jeppesen <niejep@dtu.dk>
+with additional performance optimizations and a switch to using indices instead of pointers.
 This software is provied "AS IS" without any warranty, please see original disclaimer below.
 */
 
@@ -1629,7 +1631,7 @@ inline Flow IBFSGraph2<Cap, Term, Flow, NodeIdx, ArcIdx>::computeMaxFlow(
         if (dirS)
             growth<true>();
         else
-            growth<false>(); //second iteration 
+            growth<false>(); //second iteration
 
         // switch to next level
         if (!allowIncrements && (activeS1.len == 0 || activeT1.len == 0)) {

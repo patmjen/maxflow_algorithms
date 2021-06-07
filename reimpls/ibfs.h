@@ -1,6 +1,8 @@
 /*
 This software has been modified by Hossam Isack <isack.hossam@gmail.com> and Karin Ng <karinng10@gmail.com>,
 to handle large graphs and to allow graph rests (to avoid reallocating memeory when weights change).
+It has further been updated by Patrick M. Jensen <patmjen@dtu.dk> and Niels Jeppesen <niejep@dtu.dk>
+with additional performance optimizations and a switch to using indices instead of pointers.
 This software is provied "AS IS" without any warranty, please see original disclaimer below.
 */
 
@@ -170,7 +172,7 @@ private:
     inline const Arc& sister(ArcIdx a) const { return arcs[arcs[a].rev]; }
 
     void print_graph(std::FILE *file = stdout) const;
-    
+
     struct TmpEdge {
         int64_t head;
         int64_t tail;
@@ -290,7 +292,7 @@ private:
             buckets = NULL;
         }
 
-        template <bool sTree> 
+        template <bool sTree>
         inline void add(NodeIdx i)
         {
             Node& x = nodes[i];
@@ -400,7 +402,7 @@ private:
             return i;
         }
 
-        template <bool sTree> 
+        template <bool sTree>
         inline void remove(NodeIdx i)
         {
             Node& x = nodes[i];
@@ -1037,7 +1039,7 @@ inline  int64_t IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::augmentPath(NodeIdx
     while (nodes[i].excess == 0) {
         Arc& a = arcs[nodes[i].parent];
         Arc& sister = arcs[a.rev];
-        
+
         if (sTree) {
             a.rCap += push;
             sister.isRevResidual = true;
@@ -1681,7 +1683,7 @@ inline Flow IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::computeMaxFlow(
         if (dirS)
             growth<true>();
         else
-            growth<false>(); //second iteration 
+            growth<false>(); //second iteration
 
         // switch to next level
         if (!allowIncrements && (activeS1.len == 0 || activeT1.len == 0)) {
@@ -1710,4 +1712,4 @@ inline Flow IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::computeMaxFlow(
 } // namespace reimpls
 
 #endif // REIMPLS_IBFS_H__
-                  
+
