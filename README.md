@@ -108,7 +108,7 @@ We provide three programs:
 
 ## How to Build
 
-The programs are written in C++ and and we use CMake version 3.13 to build the programs. Below, we provide build instructions for the major operating systems. Mac OS was not tested, but hopefully the linux instructions will suffice.
+The programs are written in C++ and and we use CMake version 3.13 to build the programs. Below, we provide build instructions for the major operating systems. Mac OS was not tested, but hopefully the linux instructions will suffice. Some author reference implementations make use of the Intel Threading Build Blocks library, so this must be installed and you must modify the `TBB_PATH` variable in `CMakeLists.txt`, line 28.
 
 ### Windows
 
