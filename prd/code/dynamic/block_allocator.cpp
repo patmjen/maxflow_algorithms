@@ -241,12 +241,12 @@ namespace dynamic{
 				spare.detach();
 				free(p);
 			};
-			if(!(buffers.empty() && spare.empty())){
+			/*if(!(buffers.empty() && spare.empty())){
 				try{
 					fprintf(stderr,"Memory leaks detected\n");
 				}catch(...){
 				};
-			};
+			};*/
 		};
 	};
 
