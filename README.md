@@ -81,13 +81,17 @@ We provide three programs:
 
     ```json
     {
-      "file_name": "<Path to file name.>",
+      "file_name": "<Path to file name>",
       "file_type": "<Type of file. Can be 'bbk', 'bq', or 'dimacs'>",
       "nbor_cap_type": "<Type of neighbor arc capacities>",
       "term_cap_type": "<Type of terminal arc capacities>"
     }
     ```
+
+    If parallel algorithms are being run, each file must also have a corresponding block file (see [Binary File Formats](#Binary-File-Formats)), which specifies a partition of the graph nodes into blocks. The name of this file must be equal to the "file_name" field with ".blk" appended - e.g. for 'example.max' the block file is 'example.max.blk'.
   * `parallel`: If parallel algorithms are run, this field configures properties specific for those. It must include a `threads` field giving a list of the number of threads to run with for each problem instance and each parallel algorithm.
+
+  Two examples of json config files are included: `bench_config_serial.json` and `bench_config_parallel.json`.
 
 * **`bench_io`**: Allows for converting between the different file formats. Usage:
 
