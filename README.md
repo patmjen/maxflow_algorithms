@@ -1,6 +1,7 @@
 # Max-Flow/Min-Cut Algorithms
 
-[![DOI](https://zenodo.org/badge/373525232.svg)](https://zenodo.org/badge/latestdoi/373525232)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4903945.svg)](https://doi.org/10.5281/zenodo.4903945)
+
 
 This is a collection of min-cut/max-flow algorithms which can used for benchmarking min-cut/max-flow algoriths. The collection is released in companionship with the paper:
 
