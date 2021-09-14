@@ -152,16 +152,16 @@ class BkGraphBuilder:
     def __init__(
         self,
         num_nodes: int = 0,
-        term_arc_capacity: int = 0,
-        nbor_arc_capacity: int = 0,
+        expected_term_arcs: int = 0,
+        expected_nbor_arcs: int = 0,
         term_cap_type: DTypeLike = np.int32,
         nbor_cap_type: DTypeLike = np.int32
     ):
         """
         Args:
             num_nodes: Number of initial graph nodes.
-            term_arc_capacity: Initial terminal arc capacity.
-            nbor_arc_capacity: Initial neighbor arc capacity.
+            expected_term_arcs: Expected number of terminal arcs.
+            expected_nbor_arcs: Expected number of neighbor arcs.
             term_cap_type: Type of terminal arc capacity.
             nbor_cap_type: Type of neighbor arc capacity.
         """
@@ -170,11 +170,11 @@ class BkGraphBuilder:
         self.num_nbor_arcs = 0
 
         self.term_arcs = np.empty(
-            term_arc_capacity,
+            expected_term_arcs,
             dtype=_bk_term_arc_dtype(term_cap_type)
         )
         self.nbor_arcs = np.empty(
-            nbor_arc_capacity,
+            expected_nbor_arcs,
             dtype=_bk_nbor_arc_dtype(nbor_cap_type)
         )
 
