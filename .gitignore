@@ -39,3 +39,6 @@ out/
 # Data files
 *.max
 *.bbk
+
+# Source files in GridCut directory as their license disallows redistribution
+grid_cut/*.h
