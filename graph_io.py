@@ -387,8 +387,8 @@ class BkGraphBuilder:
         """
         return BkGraph(
             num_nodes=self.num_nodes,
-            term_arcs=self.term_arcs,
-            nbor_arcs=self.nbor_arcs,
+            term_arcs=self.term_arcs[:self.num_term_arcs],
+            nbor_arcs=self.nbor_arcs[:self.num_nbor_arcs],
         )
 
 
