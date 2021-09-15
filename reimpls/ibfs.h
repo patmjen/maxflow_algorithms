@@ -103,7 +103,7 @@ public:
     inline Flow getFlow() const noexcept { return flow; }
     inline size_t getNumNodes() const noexcept { return nodeEnd - nodes; }
     inline size_t getNumArcs() const noexcept { return arcEnd - arcs; }
-    int isNodeOnSrcSide(NodeIdx node, int freeNodeValue = 0);
+    int isNodeOnSrcSide(NodeIdx node, int freeNodeValue = 0) const;
 
 #pragma pack (1)
     struct REIMPLS_PACKED Arc {
@@ -879,7 +879,8 @@ inline void IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::incEdge(
 }
 
 template <class Cap, class Term, class Flow, class NodeIdx, class ArcIdx>
-inline int IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::isNodeOnSrcSide(NodeIdx node, int freeNodeValue)
+inline int IBFSGraph<Cap, Term, Flow, NodeIdx, ArcIdx>::isNodeOnSrcSide(
+    NodeIdx node, int freeNodeValue) const
 {
     if (nodes[node].label == 0) {
         return freeNodeValue;

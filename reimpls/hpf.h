@@ -63,6 +63,9 @@ public:
 
     Hpf(size_t expectedNodes = 0, size_t expectedArcs = 0);
 
+    void reserve_nodes(size_t num);
+    void reserve_edges(size_t num);
+
     uint32_t add_node(uint32_t num = 1);
 
     void add_edge(uint32_t from, uint32_t to, Cap capacity);
@@ -201,11 +204,23 @@ inline Hpf<Cap, LABEL_ORDER, ROOT_ORDER>::Hpf(size_t expectedNodes, size_t expec
     arcList(),
     outOfTreePtrs()
 {
-    adjacencyList.reserve(expectedNodes);
-    strongRoots.reserve(expectedNodes);
-    labelCount.reserve(expectedNodes);
-    arcList.reserve(expectedArcs);
-    outOfTreePtrs.reserve(expectedArcs * 2);
+    reserve_nodes(expectedNodes);
+    reserve_edges(expectedArcs);
+}
+
+template <class Cap, LabelOrder LABEL_ORDER, RootOrder ROOT_ORDER>
+inline void Hpf<Cap, LABEL_ORDER, ROOT_ORDER>::reserve_nodes(size_t num)
+{
+    adjacencyList.reserve(num);
+    strongRoots.reserve(num);
+    labelCount.reserve(num);
+}
+
+template <class Cap, LabelOrder LABEL_ORDER, RootOrder ROOT_ORDER>
+inline void Hpf<Cap, LABEL_ORDER, ROOT_ORDER>::reserve_edges(size_t num)
+{
+    arcList.reserve(num);
+    outOfTreePtrs.reserve(num * 2);
 }
 
 template <class Cap, LabelOrder LABEL_ORDER, RootOrder ROOT_ORDER>
@@ -248,7 +263,7 @@ template <class Cap, LabelOrder LABEL_ORDER, RootOrder ROOT_ORDER>
 inline typename Hpf<Cap, LABEL_ORDER, ROOT_ORDER>::TermType Hpf<Cap, LABEL_ORDER, ROOT_ORDER>::what_label(
     uint32_t node) const
 {
-    return adjacencyList[node].label >= gap ? SOURCE : SINK;
+    return adjacencyList[node].label >= gap() ? SOURCE : SINK;
 }
 
 template <class Cap, LabelOrder LABEL_ORDER, RootOrder ROOT_ORDER>

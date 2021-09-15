@@ -36,7 +36,11 @@ public:
         SINK = 1
     };
 
-    Graph(size_t expected_nodes, size_t expected_arcs);
+    explicit Graph();
+    explicit Graph(size_t expected_nodes, size_t expected_arcs);
+
+    void reserve_nodes(size_t num);
+    void reserve_edges(size_t num);
 
     NodeIdx add_node(size_t num = 1);
 
@@ -45,6 +49,8 @@ public:
     void add_edge(NodeIdx i, NodeIdx j, Cap cap, Cap rev_cap, bool merge_duplicates = true);
 
     Flow maxflow(bool reuse_trees = false);
+
+    Flow get_maxflow() const noexcept { return flow; }
 
     TermType what_segment(NodeIdx i, TermType default_segment = SOURCE) const;
 
@@ -145,7 +151,7 @@ private:
 
 
 template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
-Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::Graph(size_t expected_nodes, size_t expected_arcs) :
+Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::Graph() :
     nodes(),
     arcs(),
     flow(0),
@@ -154,11 +160,27 @@ Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::Graph(size_t expected_nodes, size_t exp
     last_active(INVALID_NODE),
     orphan_nodes(),
     time(0)
+{}
+
+template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
+Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::Graph(size_t expected_nodes, size_t expected_arcs) :
+    Graph()
 {
-    nodes.reserve(expected_nodes);
-    arcs.reserve(2 * expected_arcs);
+    reserve_nodes(expected_nodes);
+    reserve_edges(expected_arcs);
 }
 
+template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
+inline void Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::reserve_nodes(size_t num)
+{
+    nodes.reserve(num);
+}
+
+template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
+inline void Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::reserve_edges(size_t num)
+{
+    arcs.reserve(2 * num);
+}
 
 template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
 inline NodeIdx Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::add_node(size_t num)
@@ -242,7 +264,7 @@ inline void Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::add_half_edge(
 }
 
 template <class Cap, class Term, class Flow, class ArcIdx, class NodeIdx>
-inline typename Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::TermType 
+inline typename Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::TermType
 Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::what_segment(NodeIdx i, TermType default_segment) const
 {
     if (nodes[i].parent != INVALID_ARC) {
@@ -295,7 +317,7 @@ inline Flow Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::maxflow(bool reuse_trees)
 
         // At this point i must point to a valid active node
         ArcIdx source_sink_connector = grow_search_tree(i);
-        
+
 #ifndef REIMPLS_NO_OVERFLOW_CHECKS
         // Check for overflow in time variable.
         if (time == std::numeric_limits<Time>::max()) {
@@ -499,7 +521,7 @@ inline void Graph<Cap, Term, Flow, ArcIdx, NodeIdx>::augment(ArcIdx middle_idx)
     Term bottleneck = middle.r_cap;
     bottleneck = std::min(bottleneck, tree_bottleneck(middle_sister.head, true));
     bottleneck = std::min(bottleneck, tree_bottleneck(middle.head, false));
-    
+
     // Step  2: Augment along source and sink tree
     middle_sister.r_cap += bottleneck;
     middle.r_cap -= bottleneck;
