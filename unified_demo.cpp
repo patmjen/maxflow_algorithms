@@ -7,7 +7,7 @@
 
 #include "graph_io.h"
 
-#include "unified_interface.h"
+#include "unified/serial.h"
 
 using Duration = std::chrono::duration<double>;
 static const auto now = std::chrono::steady_clock::now;

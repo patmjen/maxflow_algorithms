@@ -3,16 +3,12 @@
 
 #include <cinttypes>
 
+#include "unified/common.h"
 #include "reimpls/graph.h"
 #include "reimpls/ibfs.h"
 #include "reimpls/hpf.h"
 
 namespace unified {
-
-enum TermType : int32_t {
-    SOURCE = 0,
-    SINK = 1
-};
 
 template <class Cap, class Term, class Flow, class ArcIdx = uint32_t, class NodeIdx = uint32_t>
 class SerialMaxflow {
