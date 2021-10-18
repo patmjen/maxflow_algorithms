@@ -1,0 +1,49 @@
+{
+  "name": "GridCut example",
+  "num_run": 3,
+  "types": [
+    {
+      "cap": "int32",
+      "term": "int32",
+      "flow": "int64",
+      "index": "int32"
+    }
+  ],
+  "algorithms": [
+    "gridcut_mt",
+    "gridcut"
+  ],
+  "parallel": {
+    "threads": [
+      1,
+      2,
+      4
+    ]
+  },
+  "data_sets": [
+    {
+      "file_name": "data/bone.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32",
+      "grid_info": {
+        "grid_type": "3D_6C",
+        "width": 256,
+        "height": 256,
+        "depth": 119
+      }
+    },
+    {
+      "file_name": "data/liver.n6c10.max.bbk",
+      "file_type": "bbk",
+      "nbor_cap_type": "int32",
+      "term_cap_type": "int32",
+      "grid_info": {
+        "grid_type": "3D_6C",
+        "width": 170,
+        "height": 170,
+        "depth": 144
+      }
+    }
+  ]
+}

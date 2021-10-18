@@ -3,11 +3,14 @@
 #include <stdexcept>
 #include <thread>
 #include <inttypes.h>
+#include <tuple>
+#include <vector>
 
 #include "graph_io.h"
 #include "bk/graph.h"
 #include "reimpls/parallel_graph.h"
 #include "reimpls/graph.h"
+#include "reimpls/graph2.h"
 #include "reimpls/ibfs.h"
 #include "reimpls/ibfs2.h"
 #include "reimpls/parallel_ibfs.h"
@@ -15,9 +18,29 @@
 #include "reimpls/hpf.h"
 #include "hi_pr/hi_pr.h"
 #include "reimpls/parallel_sk.h"
+#include "grid_cut/GridGraph_3D_6C.h"
+#include "grid_cut/GridGraph_3D_6C_MT.h"
 
 using Duration = std::chrono::duration<double>;
 static const auto now = std::chrono::steady_clock::now;
+
+struct coord {
+    int x;
+    int y;
+    int z;
+
+    coord() = default;
+    coord(int x, int y, int z) : x(x), y(y), z(z) {}
+};
+
+coord id2coord(int i, int width, int height)
+{
+    return coord(
+        (i % (width * height)) % width,
+        (i % (width * height)) / width,
+        i / (width * height)
+    );
+};
 
 template <class capty, class tcapty>
 void bench_bk(const BkGraph<capty, tcapty>& bkg)
@@ -67,6 +90,37 @@ void bench_mbk(const BkGraph<capty, tcapty>& bkg)
     std::cout << solve_dur.count() << " seconds" << std::endl;
 
     std::cout << "total: " << (build_dur + solve_dur).count() << " seconds, maxflow: " << flow << std::endl;
+}
+
+template <class capty, class tcapty>
+void bench_mbk2(const BkGraph<capty, tcapty>& bkg)
+{
+    std::cout << "building... ";
+    auto build_begin = now();
+    reimpls::Graph2<int, int, int, uint32_t, uint32_t> graph(bkg.num_nodes, bkg.neighbor_arcs.size());
+    graph.add_node(bkg.num_nodes);
+    for (const auto& tarc : bkg.terminal_arcs) {
+        graph.add_tweights(tarc.node, tarc.source_cap, tarc.sink_cap);
+    }
+    for (const auto& narc : bkg.neighbor_arcs) {
+        graph.add_edge(narc.i, narc.j, narc.cap, narc.rev_cap, false);
+    }
+    Duration build_dur = now() - build_begin;
+    std::cout << build_dur.count() << " seconds" << std::endl;
+
+    std::cout << "init... ";
+    auto init_begin = now();
+    graph.init_maxflow();
+    Duration init_dur = now() - init_begin;
+    std::cout << init_dur.count() << " seconds" << std::endl;
+
+    std::cout << "solving... ";
+    auto solve_begin = now();
+    auto flow = graph.maxflow();
+    Duration solve_dur = now() - solve_begin;
+    std::cout << solve_dur.count() << " seconds" << std::endl;
+
+    std::cout << "total: " << (build_dur + init_dur + solve_dur).count() << " seconds, maxflow: " << flow << std::endl;
 }
 
 template <class capty, class tcapty>
@@ -483,6 +537,266 @@ void bench_sk(const BkGraph<capty, tcapty> bkg)
 }
 
 template <class capty, class tcapty>
+void bench_grid_cut(const BkGraph<capty, tcapty> bkg)
+{
+    // bone.n6c10
+    //const int width = 256, height = 256, depth = 119;
+
+    // liver.n6c10
+    const int width = 170, height = 170, depth = 144;
+
+    std::cout << "init... ";
+    auto init_begin = now();
+    GridGraph_3D_6C<tcapty, capty, int> graph(width, height, depth);
+    Duration init_dur = now() - init_begin;
+    std::cout << init_dur.count() << " seconds" << std::endl;
+
+    // Precompute x,y,z coordinates. This make the time comparisons more fair
+    std::cout << "precomputing data (not counted)... ";
+    auto precomp_begin = now();
+    std::vector<std::tuple<coord, tcapty, tcapty>> term_arcs; // xyz, sink, source
+    term_arcs.reserve(bkg.terminal_arcs.size());
+    for (const auto& tarc : bkg.terminal_arcs) {
+        term_arcs.emplace_back(id2coord(tarc.node, width, height), tarc.source_cap, tarc.sink_cap);
+    }
+
+    std::vector<std::tuple<coord, coord, capty>> nbor_arcs; // xyz, offset, cap
+    nbor_arcs.reserve(bkg.neighbor_arcs.size());
+    for (const auto& narc : bkg.neighbor_arcs) {
+        coord ci = id2coord(narc.i, width, height);
+        coord cj = id2coord(narc.j, width, height);
+
+        coord offset_i(cj.x - ci.x, cj.y - ci.y, cj.z - ci.z);
+        coord offset_j(ci.x - cj.x, ci.y - cj.y, ci.z - cj.z);
+        
+        nbor_arcs.emplace_back(ci, offset_i, narc.cap);
+        nbor_arcs.emplace_back(cj, offset_j, narc.rev_cap);
+    }
+    Duration precomp_dur = now() - precomp_begin;
+    std::cout << precomp_dur.count() << " seconds" << std::endl;
+
+    std::cout << "building... ";
+    auto build_begin = now();
+    for (const auto& tarc : term_arcs) {
+        coord c;
+        tcapty source_cap, sink_cap;
+        std::tie(c, source_cap, sink_cap) = tarc;
+        graph.set_terminal_cap(graph.node_id(c.x, c.y, c.z), source_cap, sink_cap);
+    }
+    for (const auto& narc : nbor_arcs) {
+        coord c, offset;
+        capty cap;
+        std::tie(c, offset, cap) = narc;
+        if (abs(offset.x) <= 1 && abs(offset.y) <= 1 && abs(offset.z) <= 1) {
+            graph.set_neighbor_cap(graph.node_id(c.x, c.y, c.z), offset.x, offset.y, offset.z, cap);
+        }
+    }
+    Duration build_dur = now() - build_begin;
+    std::cout << build_dur.count() << " seconds" << std::endl;
+
+    std::cout << "solving... ";
+    auto solve_begin = now();
+    graph.compute_maxflow();
+    auto flow = graph.get_flow();
+    Duration solve_dur = now() - solve_begin;
+    std::cout << solve_dur.count() << " seconds" << std::endl;
+
+    std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
+    std::cout << "maxflow: " << flow << std::endl;
+}
+
+template <class capty, class tcapty>
+void bench_grid_cut_fastbuild(const BkGraph<capty, tcapty> bkg)
+{
+    // bone.n6c10
+    //const int width = 256, height = 256, depth = 119;
+
+    // liver.n6c10
+    const int width = 170, height = 170, depth = 144;
+
+    std::cout << "init... ";
+    auto init_begin = now();
+    GridGraph_3D_6C<tcapty, capty, int> graph(width, height, depth);
+    Duration init_dur = now() - init_begin;
+    std::cout << init_dur.count() << " seconds" << std::endl;
+
+    // Precompute capacity arrays for fast build.
+    std::cout << "precomputing data (not counted)... ";
+    auto precomp_begin = now();
+    std::vector<tcapty> source_caps(width * height * depth, 0);
+    std::vector<tcapty> sink_caps(width * height * depth, 0);
+    for (const auto& tarc : bkg.terminal_arcs) {
+        source_caps[tarc.node] += tarc.source_cap;
+        sink_caps[tarc.node] += tarc.sink_cap;
+    }
+
+    std::vector<capty> lee_caps(width * height * depth, 0);
+    std::vector<capty> gee_caps(width * height * depth, 0);
+    std::vector<capty> ele_caps(width * height * depth, 0);
+    std::vector<capty> ege_caps(width * height * depth, 0);
+    std::vector<capty> eel_caps(width * height * depth, 0);
+    std::vector<capty> eeg_caps(width * height * depth, 0);
+    for (const auto& narc : bkg.neighbor_arcs) {
+        coord ci = id2coord(narc.i, width, height);
+        coord cj = id2coord(narc.j, width, height);
+
+        coord offset_i(cj.x - ci.x, cj.y - ci.y, cj.z - ci.z);
+        coord offset_j(ci.x - cj.x, ci.y - cj.y, ci.z - cj.z);
+        if (offset_i.x == -1) {
+            lee_caps[narc.i] += narc.cap;
+        } else if (offset_i.x == 1) {
+            gee_caps[narc.i] += narc.cap;
+        } else if (offset_i.y == -1) {
+            ele_caps[narc.i] += narc.cap;
+        } else if (offset_i.y == 1) {
+            ege_caps[narc.i] += narc.cap;
+        } else if (offset_i.z == -1) {
+            eel_caps[narc.i] += narc.cap;
+        } else if (offset_i.z == 1) {
+            eeg_caps[narc.i] += narc.cap;
+        }
+
+        if (offset_j.x == -1) {
+            lee_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.x == 1) {
+            gee_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.y == -1) {
+            ele_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.y == 1) {
+            ege_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.z == -1) {
+            eel_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.z == 1) {
+            eeg_caps[narc.j] += narc.rev_cap;
+        }
+    }
+    Duration precomp_dur = now() - precomp_begin;
+    std::cout << precomp_dur.count() << " seconds" << std::endl;
+
+    std::cout << "building... ";
+    auto build_begin = now();
+    graph.set_caps(
+        source_caps.data(),
+        sink_caps.data(),
+        lee_caps.data(),
+        gee_caps.data(),
+        ele_caps.data(),
+        ege_caps.data(),
+        eel_caps.data(),
+        eeg_caps.data()
+    );
+    Duration build_dur = now() - build_begin;
+    std::cout << build_dur.count() << " seconds" << std::endl;
+
+    std::cout << "solving... ";
+    auto solve_begin = now();
+    graph.compute_maxflow();
+    auto flow = graph.get_flow();
+    Duration solve_dur = now() - solve_begin;
+    std::cout << solve_dur.count() << " seconds" << std::endl;
+
+    std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
+    std::cout << "maxflow: " << flow << std::endl;
+}
+
+template <class capty, class tcapty>
+void bench_grid_cut_mt(const BkGraph<capty, tcapty> bkg)
+{
+    // bone.n6c10
+    //const int width = 256, height = 256, depth = 119;
+
+    // liver.n6c10
+    const int width = 170, height = 170, depth = 144;
+
+    const int block_size = 32;
+    const int num_threads = std::thread::hardware_concurrency();
+
+    std::cout << "init... ";
+    auto init_begin = now();
+    GridGraph_3D_6C_MT<tcapty, capty, int> graph(width, height, depth, num_threads, block_size);
+    Duration init_dur = now() - init_begin;
+    std::cout << init_dur.count() << " seconds" << std::endl;
+
+    // Precompute capacity arrays for fast build.
+    std::cout << "precomputing data (not counted)... ";
+    auto precomp_begin = now();
+    std::vector<tcapty> source_caps(width * height * depth, 0);
+    std::vector<tcapty> sink_caps(width * height * depth, 0);
+    for (const auto& tarc : bkg.terminal_arcs) {
+        source_caps[tarc.node] += tarc.source_cap;
+        sink_caps[tarc.node] += tarc.sink_cap;
+    }
+
+    std::vector<capty> lee_caps(width * height * depth, 0);
+    std::vector<capty> gee_caps(width * height * depth, 0);
+    std::vector<capty> ele_caps(width * height * depth, 0);
+    std::vector<capty> ege_caps(width * height * depth, 0);
+    std::vector<capty> eel_caps(width * height * depth, 0);
+    std::vector<capty> eeg_caps(width * height * depth, 0);
+    for (const auto& narc : bkg.neighbor_arcs) {
+        coord ci = id2coord(narc.i, width, height);
+        coord cj = id2coord(narc.j, width, height);
+
+        coord offset_i(cj.x - ci.x, cj.y - ci.y, cj.z - ci.z);
+        coord offset_j(ci.x - cj.x, ci.y - cj.y, ci.z - cj.z);
+        if (offset_i.x == -1) {
+            lee_caps[narc.i] += narc.cap;
+        } else if (offset_i.x == 1) {
+            gee_caps[narc.i] += narc.cap;
+        } else if (offset_i.y == -1) {
+            ele_caps[narc.i] += narc.cap;
+        } else if (offset_i.y == 1) {
+            ege_caps[narc.i] += narc.cap;
+        } else if (offset_i.z == -1) {
+            eel_caps[narc.i] += narc.cap;
+        } else if (offset_i.z == 1) {
+            eeg_caps[narc.i] += narc.cap;
+        }
+
+        if (offset_j.x == -1) {
+            lee_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.x == 1) {
+            gee_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.y == -1) {
+            ele_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.y == 1) {
+            ege_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.z == -1) {
+            eel_caps[narc.j] += narc.rev_cap;
+        } else if (offset_j.z == 1) {
+            eeg_caps[narc.j] += narc.rev_cap;
+        }
+    }
+    Duration precomp_dur = now() - precomp_begin;
+    std::cout << precomp_dur.count() << " seconds" << std::endl;
+
+    std::cout << "building... ";
+    auto build_begin = now();
+    graph.set_caps(
+        source_caps.data(),
+        sink_caps.data(),
+        lee_caps.data(),
+        gee_caps.data(),
+        ele_caps.data(),
+        ege_caps.data(),
+        eel_caps.data(),
+        eeg_caps.data()
+    );
+    Duration build_dur = now() - build_begin;
+    std::cout << build_dur.count() << " seconds" << std::endl;
+
+    std::cout << "solving (" << num_threads << " threads, " << block_size << "^3 blocks)... ";
+    auto solve_begin = now();
+    graph.compute_maxflow();
+    auto flow = graph.get_flow();
+    Duration solve_dur = now() - solve_begin;
+    std::cout << solve_dur.count() << " seconds" << std::endl;
+
+    std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
+    std::cout << "maxflow: " << flow << std::endl;
+}
+
+template <class capty, class tcapty>
 BkGraph<capty, tcapty> read_graph(const std::string& fname)
 {
     static_assert(std::is_convertible<capty, tcapty>::value, "Must be able to convert capty to tcapty");
@@ -506,11 +820,12 @@ int main(int argc, const char* argv[])
 {
     std::string fname;
     if (argc < 2) {
-        std::cout << "ERROR: must provide problem instance file\n";
+        /*std::cout << "ERROR: must provide problem instance file\n";
         std::cout << "Usage: demo <file> [<algo>...]\n";
         std::cout << "  Benchmark FILE with ALGOs. ALGO must be one of:\n";
         std::cout << "    bk mbk pmbk eilbfs_old eibfs eibfs2 peibfs ppr hpf hi_pr sk\n";
-        return -1;
+        return -1;*/
+        fname = "C:/Users/patmjen/Documents/HCP Anywhere/projects/parallel-qpbo/data/liver.n6c10.max.bbk";
     } else {
         fname = argv[1];
     }
@@ -518,6 +833,21 @@ int main(int argc, const char* argv[])
 
     try {
         auto bkg = read_graph<int, int>(fname);
+
+        std::cerr << "GridCut:" << std::endl; // DEBUG
+        bench_grid_cut(bkg); // DEBUG
+        std::cerr << "GridCut fast build:" << std::endl; // DEBUG
+        bench_grid_cut_fastbuild(bkg); // DEBUG
+        std::cerr << "Parallel GridCut:" << std::endl; // DEBUG
+        bench_grid_cut_mt(bkg); // DEBUG
+        std::cerr << "MBK:" << std::endl;
+        bench_mbk(bkg);
+        std::cerr << "MBK2:" << std::endl;
+        bench_mbk2(bkg);
+        std::cerr << "HPF:" << std::endl;
+        bench_hpf(bkg);
+        std::cerr << "EIBFS new:" << std::endl;
+        bench_ibfs(bkg);
 
         for (int i = 0; i < argc - 2; ++i) {
             std::string algo = argv[i + 2];
@@ -528,6 +858,10 @@ int main(int argc, const char* argv[])
             if (algo == "mbk") {
                 std::cerr << "MBK:" << std::endl;
                 bench_mbk(bkg);
+            }
+            if (algo == "mbk2") {
+                std::cerr << "MBK2:" << std::endl;
+                bench_mbk2(bkg);
             }
             if (algo == "pmbk") {
                 std::cerr << "Parallel MBK:" << std::endl;
@@ -568,6 +902,10 @@ int main(int argc, const char* argv[])
             if (algo =="sk") {
                 std::cerr << "Strandmark-Kahl new:" << std::endl;
                 bench_sk(bkg);
+            }
+            if (algo == "grid_cut") {
+                std::cerr << "GridCut:" << std::endl;
+                bench_grid_cut(bkg);
             }
         }
     } catch (const std::exception& e) {

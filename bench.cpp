@@ -5,10 +5,21 @@
 #include <string>
 #include <fstream>
 #include <tuple>
+#include <vector>
+#include <array>
+#include <algorithm>
 
 #include "json.hpp"
 
 #include "graph_io.h"
+
+#include "grid_cut/GridGraph_2D_4C.h"
+#include "grid_cut/GridGraph_2D_8C.h"
+#include "grid_cut/GridGraph_3D_6C.h"
+#include "grid_cut/GridGraph_3D_26C.h"
+#include "grid_cut/GridGraph_2D_4C_MT.h"
+#include "grid_cut/GridGraph_3D_6C_MT.h"
+
 #include "bk/graph.h"
 #include "nbk/graph.h"
 #include "reimpls/graph.h"
@@ -37,6 +48,24 @@ static const auto now = std::chrono::steady_clock::now;
 
 using json = nlohmann::json;
 
+struct Vec3i {
+    int x;
+    int y;
+    int z;
+
+    Vec3i() = default;
+    Vec3i(int x, int y, int z) : x(x), y(y), z(z) {}
+};
+
+Vec3i id2vec(int i, int width, int height)
+{
+    return Vec3i(
+        (i % (width * height)) % width,
+        (i % (width * height)) / width,
+        i / (width * height)
+    );
+};
+
 enum Algorithm {
     // Serial algorithms
     ALGO_BK,
@@ -52,6 +81,7 @@ enum Algorithm {
     ALGO_HPF_LF,
     ALGO_HPF_LL,
     ALGO_HI_PR,
+    ALGO_GRIDCUT,
 
     // Parallel algorithms
     ALGO_PMBK,
@@ -59,6 +89,7 @@ enum Algorithm {
     ALGO_PSK,
     ALGO_PARD,
     ALGO_PEIBFS,
+    ALGO_GRIDCUT_MT,
 
     // Dummy just to check loading and output
     ALGO_DUMMY
@@ -68,6 +99,14 @@ enum FileType {
     FTYPE_DIMACS,
     FTYPE_BBK,
     FTYPE_BQ
+};
+
+enum GridType {
+    GRID_TYPE_NO_GRID = 0,
+    GRID_TYPE_2D_4C,
+    GRID_TYPE_2D_8C,
+    GRID_TYPE_3D_6C,
+    GRID_TYPE_3D_26C
 };
 
 struct BenchConfig {
@@ -92,6 +131,12 @@ struct DataConfig {
 
     std::string file_name;
     FileType file_type;
+
+    GridType grid_type;
+    // These values should only be read if grid_type is not GRID_TYPE_NO_GRID
+    size_t grid_width;
+    size_t grid_height;
+    size_t grid_depth;
 };
 
 #define SWITCH_ON_SIGNED_TYPE(type, name, ...) switch (type) { \
@@ -133,6 +178,7 @@ const char* algo_to_string(Algorithm algo);
 FileType ftype_from_string(const std::string& str);
 
 bool algo_is_parallel(Algorithm algo);
+bool algo_requires_grid(Algorithm algo);
 
 std::vector<BenchConfig> gen_bench_configs(json config);
 std::vector<DataConfig> gen_data_configs(json config);
@@ -375,6 +421,190 @@ std::tuple<Flow, double, double> bench_hi_pr(BenchConfig config, const Data& dat
     Duration solve_dur = now() - solve_begin;
 
     auto flow = graph.flow - graph.flow0;
+    return std::make_tuple(flow, build_dur.count(), solve_dur.count());
+}
+
+template <class Cap, class Term, class Flow, class Index, class Data>
+std::tuple<Flow, double, double> bench_gridcut(
+    BenchConfig config, const Data& data, const DataConfig& data_config)
+{
+    size_t width = data_config.grid_width;
+    size_t height = data_config.grid_height;
+    size_t depth = data_config.grid_depth;
+    assert(data.num_nodes == width * height * depth);
+
+    // Prepare arrays with terminal capacities
+    std::vector<Term> source_caps(data.num_nodes, 0);
+    std::vector<Term> sink_caps(data.num_nodes, 0);
+
+    for (const auto& tarc : data.terminal_arcs) {
+        source_caps[tarc.node] += tarc.source_cap;
+        sink_caps[tarc.node] += tarc.sink_cap;
+    }
+
+    // Prepare arrays with neighbor capacities
+    std::array<std::array<std::array<std::vector<Cap>, 3>, 3>, 3> nbor_cap_arrays;
+    switch (data_config.grid_type)
+    {
+    case GRID_TYPE_2D_4C:
+        nbor_cap_arrays[1][0][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][2][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[0][1][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[2][1][0].resize(data.num_nodes, 0);
+        break;
+    case GRID_TYPE_2D_8C:
+        for (size_t i = 0; i < 3; ++i) {
+            for (size_t j = 0; j < 3; ++j) {
+                nbor_cap_arrays[i][j][0].resize(data.num_nodes, 0);
+            }
+        }
+        break;
+    case GRID_TYPE_3D_6C:
+        nbor_cap_arrays[1][1][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][1][2].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][0][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][2][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[0][1][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[2][1][1].resize(data.num_nodes, 0);
+        break;
+    case GRID_TYPE_3D_26C:
+        for (size_t i = 0; i < 3; ++i) {
+            for (size_t j = 0; j < 3; ++j) {
+                for (size_t k = 0; k < 3; ++k) {
+                    nbor_cap_arrays[i][j][k].resize(data.num_nodes, 0);
+                }
+            }
+        }
+        break;
+    default:
+        throw std::invalid_argument("Benching GridCut but data is not grid.");
+    }
+
+    for (const auto& narc : data.neighbor_arcs) {
+        Vec3i ci = id2vec(narc.i, width, height);
+        Vec3i cj = id2vec(narc.j, width, height);
+
+        Vec3i offset_i(cj.x - ci.x, cj.y - ci.y, cj.z - ci.z);
+        Vec3i offset_j(ci.x - cj.x, ci.y - cj.y, ci.z - cj.z);
+
+        // Sometimes graphs have edges that go from one end of the grid to the other
+        // GridCut can't handle this so we ignore these edges. From what we've seen, these
+        // edges to not affect the solution either. It's a little bit of an advantange to GridCut
+        // but what are you gonna do...
+        if (abs(offset_i.x) <= 1 && abs(offset_i.y) <= 1 && abs(offset_i.z) <= 1) {
+            nbor_cap_arrays[offset_i.x + 1][offset_i.y + 1][offset_i.z + 1][narc.i] += narc.cap;
+        }
+        if (abs(offset_j.x) <= 1 && abs(offset_j.y) <= 1 && abs(offset_j.z) <= 1) {
+            nbor_cap_arrays[offset_j.x + 1][offset_j.y + 1][offset_j.z + 1][narc.j] += narc.rev_cap;
+        }
+    }
+
+    // Build and time graphs
+    Flow flow;
+    Duration build_dur;
+    Duration solve_dur;
+    if (data_config.grid_type == GRID_TYPE_2D_4C) {
+        auto build_begin = now();
+        GridGraph_2D_4C<Term, Cap, Flow> graph(width, height);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][0].data(), // [-1, 0]
+            nbor_cap_arrays[2][1][0].data(), // [+1, 0]
+            nbor_cap_arrays[1][0][0].data(), // [ 0,-1]
+            nbor_cap_arrays[1][2][0].data()  // [ 0,+1]
+        );
+        build_dur = now() - build_begin;
+        
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    } else if (data_config.grid_type == GRID_TYPE_2D_8C) {
+        auto build_begin = now();
+        GridGraph_2D_8C<Term, Cap, Flow> graph(width, height);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][0].data(), // [-1, 0]
+            nbor_cap_arrays[2][1][0].data(), // [+1, 0]
+            nbor_cap_arrays[1][0][0].data(), // [ 0,-1]
+            nbor_cap_arrays[1][2][0].data(), // [ 0,+1]
+            nbor_cap_arrays[0][0][0].data(), // [-1,-1]
+            nbor_cap_arrays[2][0][0].data(), // [+1,-1]
+            nbor_cap_arrays[0][2][0].data(), // [-1,+1]
+            nbor_cap_arrays[2][2][0].data()  // [+1,+1]
+        );
+        build_dur = now() - build_begin;
+
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    } else if (data_config.grid_type == GRID_TYPE_3D_6C) {
+        auto build_begin = now();
+        GridGraph_3D_6C<Term, Cap, Flow> graph(width, height, depth);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][1].data(), // [-1, 0, 0]
+            nbor_cap_arrays[2][1][1].data(), // [+1, 0, 0]
+            nbor_cap_arrays[1][0][1].data(), // [ 0,-1, 0]
+            nbor_cap_arrays[1][2][1].data(), // [ 0,+1, 0]
+            nbor_cap_arrays[1][1][0].data(), // [ 0, 0,-1]
+            nbor_cap_arrays[1][1][2].data()  // [ 0, 0,+1]
+        );
+        build_dur = now() - build_begin;
+
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    } else if (data_config.grid_type == GRID_TYPE_3D_26C) {
+        auto build_begin = now();
+        GridGraph_3D_26C<Term, Cap, Flow> graph(width, height, depth);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][1].data(), // [-1, 0, 0]
+            nbor_cap_arrays[2][1][1].data(), // [+1, 0, 0]
+            nbor_cap_arrays[1][0][1].data(), // [ 0,-1, 0]
+            nbor_cap_arrays[1][2][1].data(), // [ 0,+1, 0]
+            nbor_cap_arrays[1][1][0].data(), // [ 0, 0,-1]
+            nbor_cap_arrays[1][1][2].data(), // [ 0, 0,+1]
+
+            nbor_cap_arrays[0][0][1].data(), // [-1,-1, 0]
+            nbor_cap_arrays[2][0][1].data(), // [+1,-1, 0]
+            nbor_cap_arrays[0][2][1].data(), // [-1,+1, 0]
+            nbor_cap_arrays[2][2][1].data(), // [+1,+1, 0]
+
+            nbor_cap_arrays[1][0][0].data(), // [ 0,-1,-1]
+            nbor_cap_arrays[1][2][0].data(), // [ 0,+1,-1]
+            nbor_cap_arrays[1][0][2].data(), // [ 0,-1,+1]
+            nbor_cap_arrays[1][2][2].data(), // [ 0,+1,+1]
+
+            nbor_cap_arrays[0][1][0].data(), // [-1, 0,-1]
+            nbor_cap_arrays[0][1][2].data(), // [-1, 0,+1]
+            nbor_cap_arrays[2][1][0].data(), // [+1, 0,-1]
+            nbor_cap_arrays[2][1][2].data(), // [+1, 0,+1]
+
+            nbor_cap_arrays[0][0][0].data(), // [-1,-1,-1]
+            nbor_cap_arrays[2][0][0].data(), // [+1,-1,-1]
+            nbor_cap_arrays[0][2][0].data(), // [-1,+1,-1]
+            nbor_cap_arrays[2][2][0].data(), // [+1,+1,-1]
+            nbor_cap_arrays[0][0][2].data(), // [-1,-1,+1]
+            nbor_cap_arrays[2][0][2].data(), // [+1,-1,+1]
+            nbor_cap_arrays[0][2][2].data(), // [-1,+1,+1]
+            nbor_cap_arrays[2][2][2].data()  // [+1,+1,+1]
+        );
+        build_dur = now() - build_begin;
+
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    }
+
     return std::make_tuple(flow, build_dur.count(), solve_dur.count());
 }
 
@@ -733,6 +963,152 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_eibfs(
     return std::make_tuple(flow, build_dur.count(), solve_dur.count(), num_blocks);
 }
 
+template <class Cap, class Term, class Flow, class Index, class Data>
+std::tuple<Flow, double, double, uint16_t> bench_parallel_gridcut(
+    BenchConfig config, const Data& data, const DataConfig& data_config, std::vector<uint16_t> node_blocks, uint16_t num_blocks)
+{
+
+    size_t width = data_config.grid_width;
+    size_t height = data_config.grid_height;
+    size_t depth = data_config.grid_depth;
+    assert(data.num_nodes == width * height * depth);
+
+    // Prepare arrays with terminal capacities
+    std::vector<Term> source_caps(data.num_nodes, 0);
+    std::vector<Term> sink_caps(data.num_nodes, 0);
+
+    for (const auto& tarc : data.terminal_arcs) {
+        source_caps[tarc.node] += tarc.source_cap;
+        sink_caps[tarc.node] += tarc.sink_cap;
+    }
+
+    // Prepare arrays with neighbor capacities
+    std::array<std::array<std::array<std::vector<Cap>, 3>, 3>, 3> nbor_cap_arrays;
+    switch (data_config.grid_type)
+    {
+    case GRID_TYPE_2D_4C:
+        nbor_cap_arrays[1][0][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][2][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[0][1][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[2][1][0].resize(data.num_nodes, 0);
+        break;
+    case GRID_TYPE_3D_6C:
+        nbor_cap_arrays[1][1][0].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][1][2].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][0][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[1][2][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[0][1][1].resize(data.num_nodes, 0);
+        nbor_cap_arrays[2][1][1].resize(data.num_nodes, 0);
+        break;
+    default:
+        throw std::invalid_argument("Parallel GridCut cannot handle grid type");
+    }
+
+    for (const auto& narc : data.neighbor_arcs) {
+        Vec3i ci = id2vec(narc.i, width, height);
+        Vec3i cj = id2vec(narc.j, width, height);
+
+        Vec3i offset_i(cj.x - ci.x, cj.y - ci.y, cj.z - ci.z);
+        Vec3i offset_j(ci.x - cj.x, ci.y - cj.y, ci.z - cj.z);
+
+        // Sometimes graphs have edges that go from one end of the grid to the other
+        // GridCut can't handle this so we ignore these edges. From what we've seen, these
+        // edges to not affect the solution either. It's a little bit of an advantange to GridCut
+        // but what are you gonna do...
+        if (abs(offset_i.x) <= 1 && abs(offset_i.y) <= 1 && abs(offset_i.z) <= 1) {
+            nbor_cap_arrays[offset_i.x + 1][offset_i.y + 1][offset_i.z + 1][narc.i] += narc.cap;
+        }
+        if (abs(offset_j.x) <= 1 && abs(offset_j.y) <= 1 && abs(offset_j.z) <= 1) {
+            nbor_cap_arrays[offset_j.x + 1][offset_j.y + 1][offset_j.z + 1][narc.j] += narc.rev_cap;
+        }
+    }
+
+    // Try to guess the block size from the block indices. We assume the blocks are axis-aligned boxes.
+    // Step 1: Find an axis-aligned bounding box for each block by looking at it's nodes
+    std::vector<Vec3i> block_mins(num_blocks, Vec3i(width + 1, height + 1, depth + 1));
+    std::vector<Vec3i> block_maxs(num_blocks);
+    for (size_t i = 0; i < node_blocks.size(); ++i) {
+        Vec3i c = id2vec(i, width, height);
+
+        Vec3i& min_c = block_mins[node_blocks[i]];
+        min_c.x = std::min(min_c.x, c.x);
+        min_c.y = std::min(min_c.y, c.y);
+        min_c.z = std::min(min_c.z, c.z);
+
+        Vec3i& max_c = block_maxs[node_blocks[i]];
+        max_c.x = std::max(max_c.x, c.x);
+        max_c.y = std::max(max_c.y, c.y);
+        max_c.z = std::max(max_c.z, c.z);
+    }
+    // Step 2: Given the min and max corner of each bounding box compute the box sizes
+    std::vector<int> block_widths(num_blocks);
+    std::vector<int> block_heights(num_blocks);
+    std::vector<int> block_depths(num_blocks);
+    for (size_t i = 0; i < num_blocks; ++i) {
+        const auto& min_c = block_mins[i];
+        const auto& max_c = block_maxs[i];
+        block_widths[i] = max_c.x - min_c.x + 1;
+        block_heights[i] = max_c.y - min_c.y + 1;
+        block_depths[i] = max_c.z - min_c.z + 1;
+    }
+    // Step 3: Find the median block sizes
+    std::nth_element(block_widths.begin(), block_widths.begin() + num_blocks / 2, block_widths.end());
+    std::nth_element(block_heights.begin(), block_heights.begin() + num_blocks / 2, block_heights.end());
+    std::nth_element(block_depths.begin(), block_depths.begin() + num_blocks / 2, block_depths.end());
+    // Step 4: Select the block size
+    int block_size = std::max({
+        block_widths[num_blocks / 2], block_heights[num_blocks / 2], block_depths[num_blocks / 2] });
+
+    uint16_t used_blocks = 
+        (width / block_size + (width % block_size == 0) ? 0 : 1) *
+        (height / block_size + (height % block_size == 0) ? 0 : 1) *
+        (depth / block_size + (depth % block_size == 0) ? 0 : 1);
+
+    // Build and time graphs
+    Flow flow;
+    Duration build_dur;
+    Duration solve_dur;
+    if (data_config.grid_type == GRID_TYPE_2D_4C) {
+        auto build_begin = now();
+        GridGraph_2D_4C_MT<Term, Cap, Flow> graph(width, height, config.num_threads, block_size);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][0].data(), // [-1, 0]
+            nbor_cap_arrays[2][1][0].data(), // [+1, 0]
+            nbor_cap_arrays[1][0][0].data(), // [ 0,-1]
+            nbor_cap_arrays[1][2][0].data()  // [ 0,+1]
+        );
+        build_dur = now() - build_begin;
+
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    } else if (data_config.grid_type == GRID_TYPE_3D_6C) {
+        auto build_begin = now();
+        GridGraph_3D_6C_MT<Term, Cap, Flow> graph(width, height, depth, config.num_threads, block_size);
+        graph.set_caps(
+            source_caps.data(),
+            sink_caps.data(),
+            nbor_cap_arrays[0][1][1].data(), // [-1, 0, 0]
+            nbor_cap_arrays[2][1][1].data(), // [+1, 0, 0]
+            nbor_cap_arrays[1][0][1].data(), // [ 0,-1, 0]
+            nbor_cap_arrays[1][2][1].data(), // [ 0,+1, 0]
+            nbor_cap_arrays[1][1][0].data(), // [ 0, 0,-1]
+            nbor_cap_arrays[1][1][2].data()  // [ 0, 0,+1]
+        );
+        build_dur = now() - build_begin;
+
+        auto solve_begin = now();
+        graph.compute_maxflow();
+        flow = graph.get_flow();
+        solve_dur = now() - solve_begin;
+    }
+
+    return std::make_tuple(flow, build_dur.count(), solve_dur.count(), used_blocks);
+}
+
 
 void print_config_header()
 {
@@ -813,12 +1189,11 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
         switch (bench_config.algo) {
         // Serial algorithms
         case ALGO_BK:
-            std::tie(flow, build_time, solve_time) =
-                bench_bk<Cap, Term, Flow, Index, Data>(bench_config, data);
+            std::tie(flow, build_time, solve_time) = bench_bk<Cap, Term, Flow, Index, Data>(bench_config, data);
             break;
-	case ALGO_NBK:
-	    std::tie(flow, build_time, solve_time) = bench_nbk<Cap, Term, Flow, Index, Data>(bench_config, data);
-	    break;
+	    case ALGO_NBK:
+	        std::tie(flow, build_time, solve_time) = bench_nbk<Cap, Term, Flow, Index, Data>(bench_config, data);
+	        break;
         case ALGO_MBK:
             std::tie(flow, build_time, solve_time) = bench_mbk<Cap, Term, Flow, Index, Data>(bench_config, data);
             break;
@@ -850,6 +1225,9 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
         case ALGO_HI_PR:
             std::tie(flow, build_time, solve_time) = bench_hi_pr<Cap, Term, Flow, Index, Data>(bench_config, data);
             break;
+        case ALGO_GRIDCUT:
+            std::tie(flow, build_time, solve_time) = bench_gridcut<Cap, Term, Flow, Index, Data>(bench_config, data, data_config);
+            break;
         // Parallel algorithms
         case ALGO_PMBK:
             std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_mbk<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
@@ -866,6 +1244,9 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
         case ALGO_PEIBFS:
             std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_eibfs<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
             break;
+        case ALGO_GRIDCUT_MT:
+            std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_gridcut<Cap, Term, Flow, Index, Data>(bench_config, data, data_config, node_blocks, num_blocks);
+            break;
         // Dummy and default
         case ALGO_DUMMY:
             flow = 0;
@@ -877,7 +1258,7 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
         }
 
         std::cout << used_blocks << "," << std::flush;
-	print_results<Cap, Term, Flow>(build_time, solve_time, flow);
+	    print_results<Cap, Term, Flow>(build_time, solve_time, flow);
     }
 }
 
@@ -895,7 +1276,14 @@ void bench(DataConfig config, std::vector<BenchConfig> bench_configs)
 
     std::cerr << "Benching " << config.file_name << std::endl;
     for (const auto& bc : bench_configs) {
-        std::cerr << "... " << algo_to_string(bc.algo) << std::endl;
+        std::cerr << "... " << algo_to_string(bc.algo);
+        if (algo_is_parallel(bc.algo)) {
+            std::cerr << "(" << bc.num_threads << ")";
+        }
+        if (algo_requires_grid(bc.algo) && config.grid_type == GRID_TYPE_NO_GRID) {
+            std::cerr << " (SKIPPING: algo needs grid but data is non-grid)";
+        }
+        std::cerr << std::endl;
         RUN_BENCH_FUNC(config, bc, data, bench_data);
     }
 }
@@ -915,16 +1303,12 @@ int main(int argc, const char* argv[])
     try {
         std::fstream file(fname);
         file >> config;
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-    }
 
-    std::vector<BenchConfig> bench_configs = gen_bench_configs(config);
-    std::vector<DataConfig> data_configs = gen_data_configs(config);
+        std::vector<BenchConfig> bench_configs = gen_bench_configs(config);
+        std::vector<DataConfig> data_configs = gen_data_configs(config);
 
-	print_config_header();
+	    print_config_header();
 
-    try {
         for (const auto& dc : data_configs) {
             if (dc.nbor_cap_type != TYPE_INT32 || dc.term_cap_type != TYPE_INT32) {
                 throw std::runtime_error("Only int32 weights are supported for data files.");
@@ -982,6 +1366,9 @@ const char* algo_to_string(Algorithm algo)
         return "hpf_ll";
     case ALGO_HI_PR:
         return "hi_pr";
+    case ALGO_GRIDCUT:
+        return "gridcut";
+
     case ALGO_PMBK:
         return "pmbk";
     case ALGO_PPR:
@@ -992,6 +1379,9 @@ const char* algo_to_string(Algorithm algo)
         return "pard";
     case ALGO_PEIBFS:
         return "peibfs";
+    case ALGO_GRIDCUT_MT:
+        return "gridcut_mt";
+
     case ALGO_DUMMY:
         return "dummy";
     default:
@@ -1014,11 +1404,15 @@ Algorithm algo_from_string(const std::string& str)
     if (str == algo_to_string(ALGO_HPF_LF)) return ALGO_HPF_LF;
     if (str == algo_to_string(ALGO_HPF_LL)) return ALGO_HPF_LL;
     if (str == algo_to_string(ALGO_HI_PR)) return ALGO_HI_PR;
+    if (str == algo_to_string(ALGO_GRIDCUT)) return ALGO_GRIDCUT;
+
     if (str == algo_to_string(ALGO_PMBK)) return ALGO_PMBK;
     if (str == algo_to_string(ALGO_PPR)) return ALGO_PPR;
     if (str == algo_to_string(ALGO_PSK)) return ALGO_PSK;
     if (str == algo_to_string(ALGO_PARD)) return ALGO_PARD;
     if (str == algo_to_string(ALGO_PEIBFS)) return ALGO_PEIBFS;
+    if (str == algo_to_string(ALGO_GRIDCUT_MT)) return ALGO_GRIDCUT_MT;
+
     if (str == algo_to_string(ALGO_DUMMY)) return ALGO_DUMMY;
     throw std::invalid_argument("Invalid algorithm.");
 }
@@ -1031,9 +1425,56 @@ FileType ftype_from_string(const std::string& str)
     throw std::invalid_argument("Invalid file type.");
 }
 
+const char* grid_type_to_string(GridType grid_type)
+{
+    switch (grid_type)
+    {
+    case GRID_TYPE_NO_GRID:
+        return "no_grid";
+    case GRID_TYPE_2D_4C:
+        return "2D_4C";
+    case GRID_TYPE_2D_8C:
+        return "2D_8C";
+    case GRID_TYPE_3D_6C:
+        return "3D_6C";
+    case GRID_TYPE_3D_26C:
+        return "3D_26C";
+    default:
+        throw std::invalid_argument("Invalid grid info.");
+    }
+}
+
+GridType grid_type_from_string(const std::string& str)
+{
+    if (str == grid_type_to_string(GRID_TYPE_NO_GRID)) {
+        return GRID_TYPE_NO_GRID;
+    } else if (str == grid_type_to_string(GRID_TYPE_2D_4C)) {
+        return GRID_TYPE_2D_4C;
+    } else if (str == grid_type_to_string(GRID_TYPE_2D_8C)) {
+        return GRID_TYPE_2D_8C;
+    } else if (str == grid_type_to_string(GRID_TYPE_3D_6C)) {
+        return GRID_TYPE_3D_6C;
+    } else if (str == grid_type_to_string(GRID_TYPE_3D_26C)) {
+        return GRID_TYPE_3D_26C;
+    } else {
+        throw std::invalid_argument("Invalid grid info.");
+    }
+}
+
 bool algo_is_parallel(Algorithm algo)
 {
-    return algo == ALGO_PMBK || algo == ALGO_PPR || algo == ALGO_PSK || algo == ALGO_PARD || algo == ALGO_PEIBFS;
+    return 
+        algo == ALGO_PMBK || 
+        algo == ALGO_PPR || 
+        algo == ALGO_PSK || 
+        algo == ALGO_PARD || 
+        algo == ALGO_PEIBFS ||
+        algo == ALGO_GRIDCUT_MT;
+}
+
+bool algo_requires_grid(Algorithm algo)
+{
+    return algo == ALGO_GRIDCUT || algo == ALGO_GRIDCUT_MT;
 }
 
 std::vector<BenchConfig> gen_bench_configs(json config)
@@ -1077,13 +1518,22 @@ std::vector<DataConfig> gen_data_configs(json config)
 {
     std::vector<DataConfig> out;
     for (auto& data : config["data_sets"]) {
-        out.push_back({
-            config["name"],
-            code_from_string(data["nbor_cap_type"]),
-            code_from_string(data["term_cap_type"]),
-            data["file_name"],
-            ftype_from_string(data["file_type"])
-        });
+        DataConfig data_config;
+        data_config.bench_name = config["name"];
+        data_config.nbor_cap_type = code_from_string(data["nbor_cap_type"]);
+        data_config.term_cap_type = code_from_string(data["term_cap_type"]);
+        data_config.file_name = data["file_name"];
+        data_config.file_type = ftype_from_string(data["file_type"]);
+        if (data.contains("grid_info")) {
+            const auto& grid_info = data["grid_info"];
+            data_config.grid_type = grid_type_from_string(grid_info["grid_type"]);
+            data_config.grid_width = grid_info["width"];
+            data_config.grid_height = grid_info["height"];
+            data_config.grid_depth = grid_info["depth"];
+        } else {
+            data_config.grid_type = GRID_TYPE_NO_GRID;
+        }
+        out.push_back(data_config);
     }
     return out;
 }
