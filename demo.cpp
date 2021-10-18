@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "graph_io.h"
+
 #include "bk/graph.h"
 #include "reimpls/parallel_graph.h"
 #include "reimpls/graph.h"
@@ -18,8 +19,10 @@
 #include "reimpls/hpf.h"
 #include "hi_pr/hi_pr.h"
 #include "reimpls/parallel_sk.h"
+#ifdef GRIDCUT_IS_AVAILABLE
 #include "grid_cut/GridGraph_3D_6C.h"
 #include "grid_cut/GridGraph_3D_6C_MT.h"
+#endif
 
 using Duration = std::chrono::duration<double>;
 static const auto now = std::chrono::steady_clock::now;
@@ -536,6 +539,7 @@ void bench_sk(const BkGraph<capty, tcapty> bkg)
     std::cout << "maxflow: " << flow / 2 << ", iters: " << graph.get_iter() << std::endl;
 }
 
+#ifdef GRIDCUT_IS_AVAILABLE
 template <class capty, class tcapty>
 void bench_grid_cut(const BkGraph<capty, tcapty> bkg)
 {
@@ -795,6 +799,7 @@ void bench_grid_cut_mt(const BkGraph<capty, tcapty> bkg)
     std::cout << "total: " << (init_dur + build_dur + solve_dur).count() << " seconds, ";
     std::cout << "maxflow: " << flow << std::endl;
 }
+#endif
 
 template <class capty, class tcapty>
 BkGraph<capty, tcapty> read_graph(const std::string& fname)
@@ -833,21 +838,6 @@ int main(int argc, const char* argv[])
 
     try {
         auto bkg = read_graph<int, int>(fname);
-
-        std::cerr << "GridCut:" << std::endl; // DEBUG
-        bench_grid_cut(bkg); // DEBUG
-        std::cerr << "GridCut fast build:" << std::endl; // DEBUG
-        bench_grid_cut_fastbuild(bkg); // DEBUG
-        std::cerr << "Parallel GridCut:" << std::endl; // DEBUG
-        bench_grid_cut_mt(bkg); // DEBUG
-        std::cerr << "MBK:" << std::endl;
-        bench_mbk(bkg);
-        std::cerr << "MBK2:" << std::endl;
-        bench_mbk2(bkg);
-        std::cerr << "HPF:" << std::endl;
-        bench_hpf(bkg);
-        std::cerr << "EIBFS new:" << std::endl;
-        bench_ibfs(bkg);
 
         for (int i = 0; i < argc - 2; ++i) {
             std::string algo = argv[i + 2];
@@ -903,10 +893,20 @@ int main(int argc, const char* argv[])
                 std::cerr << "Strandmark-Kahl new:" << std::endl;
                 bench_sk(bkg);
             }
+#ifdef GRIDCUT_IS_AVAILABLE
             if (algo == "grid_cut") {
                 std::cerr << "GridCut:" << std::endl;
                 bench_grid_cut(bkg);
             }
+            if (algo == "grid_cut_fastbuild") {
+                std::cerr << "GridCut (fastbuild):" << std::endl;
+                bench_grid_cut_fastbuild(bkg);
+            }
+            if (algo == "grid_cut_mt") {
+                std::cerr << "Parallel GridCut:" << std::endl;
+                bench_grid_cut_mt(bkg);
+            }
+#endif
         }
     } catch (const std::exception& e) {
         std::cout << "ERROR: " << e.what() << "\n";

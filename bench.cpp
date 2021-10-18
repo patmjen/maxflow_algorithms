@@ -13,12 +13,14 @@
 
 #include "graph_io.h"
 
+#ifdef GRIDCUT_IS_AVAILABLE
 #include "grid_cut/GridGraph_2D_4C.h"
 #include "grid_cut/GridGraph_2D_8C.h"
 #include "grid_cut/GridGraph_3D_6C.h"
 #include "grid_cut/GridGraph_3D_26C.h"
 #include "grid_cut/GridGraph_2D_4C_MT.h"
 #include "grid_cut/GridGraph_3D_6C_MT.h"
+#endif
 
 #include "bk/graph.h"
 #include "nbk/graph.h"
@@ -428,6 +430,7 @@ template <class Cap, class Term, class Flow, class Index, class Data>
 std::tuple<Flow, double, double> bench_gridcut(
     BenchConfig config, const Data& data, const DataConfig& data_config)
 {
+#ifdef GRIDCUT_IS_AVAILABLE
     size_t width = data_config.grid_width;
     size_t height = data_config.grid_height;
     size_t depth = data_config.grid_depth;
@@ -606,6 +609,9 @@ std::tuple<Flow, double, double> bench_gridcut(
     }
 
     return std::make_tuple(flow, build_dur.count(), solve_dur.count());
+#else
+    throw std::runtime_error("GridCut is not available.");
+#endif
 }
 
 template <class Cap, class Term, class Flow, class Index, class Data>
@@ -967,7 +973,7 @@ template <class Cap, class Term, class Flow, class Index, class Data>
 std::tuple<Flow, double, double, uint16_t> bench_parallel_gridcut(
     BenchConfig config, const Data& data, const DataConfig& data_config, std::vector<uint16_t> node_blocks, uint16_t num_blocks)
 {
-
+#ifdef GRIDCUT_IS_AVAILABLE
     size_t width = data_config.grid_width;
     size_t height = data_config.grid_height;
     size_t depth = data_config.grid_depth;
@@ -1107,6 +1113,9 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_gridcut(
     }
 
     return std::make_tuple(flow, build_dur.count(), solve_dur.count(), used_blocks);
+#else
+    throw std::runtime_error("Parallel GridCut is not available");
+#endif
 }
 
 
