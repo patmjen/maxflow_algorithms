@@ -8,6 +8,10 @@
 
 #include "graph_io.h"
 
+#ifdef GRIDCUT_IS_AVAILABLE
+#include "grid_cut/GridGraph_3D_6C.h"
+#include "grid_cut/GridGraph_3D_6C_MT.h"
+#endif
 #include "bk/graph.h"
 #include "reimpls/parallel_graph.h"
 #include "reimpls/graph.h"
@@ -19,10 +23,6 @@
 #include "reimpls/hpf.h"
 #include "hi_pr/hi_pr.h"
 #include "reimpls/parallel_sk.h"
-#ifdef GRIDCUT_IS_AVAILABLE
-#include "grid_cut/GridGraph_3D_6C.h"
-#include "grid_cut/GridGraph_3D_6C_MT.h"
-#endif
 
 using Duration = std::chrono::duration<double>;
 static const auto now = std::chrono::steady_clock::now;
