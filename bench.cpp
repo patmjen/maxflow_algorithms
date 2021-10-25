@@ -8,6 +8,14 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+// std::filesystem was added in C++17, but was still experimental in C++14
+#if __cplusplus >= 201700L
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
 
 #include "json.hpp"
 
@@ -860,11 +868,8 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     int size[] = { data.num_nodes };
 
     // Remove previous output directory
-    // TODO: Use proper C++ function so this works across on Windows too.
-    std::string rm_command = "rm -rf ";
-    rm_command += splitter_file;
-    rm_command += "_reg";
-    system(rm_command.c_str());
+    std::string dir_name = std::string(splitter_file) + "_reg";
+    fs::remove_all(dir_name);
 
     if (node_blocks.size() < data.num_nodes) {
         // Data was likely as .bq file so need to repeat blocks
@@ -917,7 +922,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     //Duration solve_dur = now() - solve_begin;
 
     // Remove output directory since we're done
-    system(rm_command.c_str());
+    fs::remove_all(dir_name);
 
     // To avoid including the time to read in the problem from disk in the solve time, we rely on
     // the internal timer of the implementation here. For the build time, our external timer seems
