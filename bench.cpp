@@ -863,12 +863,13 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
 {
     constexpr int source = 0;
     constexpr int sink = 1;
-    const char *splitter_file = "pard_tmp_splitter";
+    const std::string tstamp = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+    const std::string splitter_file = "pard_tmp_splitter_t" + tstamp;
     const int d = 1;
     int size[] = { data.num_nodes };
 
     // Remove previous output directory
-    std::string dir_name = std::string(splitter_file) + "_reg";
+    std::string dir_name = splitter_file + "_reg";
     fs::remove_all(dir_name);
 
     if (node_blocks.size() < data.num_nodes) {
@@ -878,7 +879,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
         std::copy_n(node_blocks.begin(), old_size, node_blocks.begin() + old_size);
     }
 
-    unsigned int num_threads = config.num_threads;
+    /*unsigned int num_threads = config.num_threads;
     uint16_t blocks_per_thread = num_blocks / num_threads;
     if (blocks_per_thread == 0) {
         // Have more threads than blocks, just use one thread per block
@@ -889,13 +890,13 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     // Update node_blocks so blocks have their correct block indices
     for (auto& block : node_blocks) {
         block = std::min<uint16_t>(block / blocks_per_thread, num_threads - 1);
-    }
+    }*/
 
     auto build_begin = now();
 
     region_graph G;
-    G.pth = std::string(splitter_file) + "_reg";
-    region_splitter2 splitter(splitter_file, &G, num_threads, node_blocks);
+    G.pth = dir_name;
+    region_splitter2 splitter(splitter_file, &G, num_blocks, node_blocks);
 
     parallel_ARD1 pard;
     pard.params.n_threads = config.num_threads;
