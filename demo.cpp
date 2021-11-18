@@ -171,6 +171,7 @@ void bench_pmbk(const BkGraph<capty, tcapty>& bkg, const std::string& fname)
     Duration build_dur = now() - build_begin;
     std::cout << build_dur.count() << " seconds" << std::endl;
 
+    graph.set_num_threads(8);
     std::cout << "solving (threads: " << graph.get_num_threads() << ")... ";
     auto solve_begin = now();
     auto flow = graph.maxflow();
@@ -541,7 +542,7 @@ void bench_sk(const BkGraph<capty, tcapty> bkg)
 
 #ifdef GRIDCUT_IS_AVAILABLE
 template <class capty, class tcapty>
-void bench_grid_cut(const BkGraph<capty, tcapty> bkg)
+void bench_gridcut(const BkGraph<capty, tcapty> bkg)
 {
     // bone.n6c10
     //const int width = 256, height = 256, depth = 119;
@@ -610,7 +611,7 @@ void bench_grid_cut(const BkGraph<capty, tcapty> bkg)
 }
 
 template <class capty, class tcapty>
-void bench_grid_cut_fastbuild(const BkGraph<capty, tcapty> bkg)
+void bench_gridcut_fastbuild(const BkGraph<capty, tcapty> bkg)
 {
     // bone.n6c10
     //const int width = 256, height = 256, depth = 119;
@@ -704,7 +705,7 @@ void bench_grid_cut_fastbuild(const BkGraph<capty, tcapty> bkg)
 }
 
 template <class capty, class tcapty>
-void bench_grid_cut_mt(const BkGraph<capty, tcapty> bkg)
+void bench_gridcut_mt(const BkGraph<capty, tcapty> bkg)
 {
     // bone.n6c10
     //const int width = 256, height = 256, depth = 119;
@@ -825,12 +826,11 @@ int main(int argc, const char* argv[])
 {
     std::string fname;
     if (argc < 2) {
-        /*std::cout << "ERROR: must provide problem instance file\n";
+        std::cout << "ERROR: must provide problem instance file\n";
         std::cout << "Usage: demo <file> [<algo>...]\n";
         std::cout << "  Benchmark FILE with ALGOs. ALGO must be one of:\n";
         std::cout << "    bk mbk pmbk eilbfs_old eibfs eibfs2 peibfs ppr hpf hi_pr sk\n";
-        return -1;*/
-        fname = "C:/Users/patmjen/Documents/HCP Anywhere/projects/parallel-qpbo/data/liver.n6c10.max.bbk";
+        return -1;
     } else {
         fname = argv[1];
     }
@@ -894,17 +894,17 @@ int main(int argc, const char* argv[])
                 bench_sk(bkg);
             }
 #ifdef GRIDCUT_IS_AVAILABLE
-            if (algo == "grid_cut") {
+            if (algo == "gridcut") {
                 std::cerr << "GridCut:" << std::endl;
-                bench_grid_cut(bkg);
+                bench_gridcut(bkg);
             }
-            if (algo == "grid_cut_fastbuild") {
+            if (algo == "gridcut_fastbuild") {
                 std::cerr << "GridCut (fastbuild):" << std::endl;
-                bench_grid_cut_fastbuild(bkg);
+                bench_gridcut_fastbuild(bkg);
             }
-            if (algo == "grid_cut_mt") {
+            if (algo == "gridcut_mt") {
                 std::cerr << "Parallel GridCut:" << std::endl;
-                bench_grid_cut_mt(bkg);
+                bench_gridcut_mt(bkg);
             }
 #endif
         }
