@@ -844,69 +844,58 @@ int main(int argc, const char* argv[])
             if (algo == "bk") {
                 std::cerr << "BK:" << std::endl;
                 bench_bk(bkg);
-            }
-            if (algo == "mbk") {
+            } else if (algo == "mbk") {
                 std::cerr << "MBK:" << std::endl;
                 bench_mbk(bkg);
-            }
-            if (algo == "mbk2") {
+            } else if (algo == "mbk2") {
                 std::cerr << "MBK2:" << std::endl;
                 bench_mbk2(bkg);
-            }
-            if (algo == "pmbk") {
+            } else if (algo == "pmbk") {
                 std::cerr << "Parallel MBK:" << std::endl;
                 bench_pmbk(bkg, fname);
-            }
-            if (algo == "eibfs_old") {
+            } else if (algo == "eibfs_old") {
                 std::cerr << "EIBFS old:" << std::endl;
                 bench_ibfs_old(bkg);
-            }
-            if (algo =="eibfs") {
+            } else if (algo =="eibfs") {
                 std::cerr << "EIBFS new:" << std::endl;
                 bench_ibfs(bkg);
-            }
-            if (algo =="eibfs2") {
+            } else if (algo =="eibfs2") {
                 std::cerr << "EIBFS new2:" << std::endl;
                 bench_ibfs2(bkg);
-            }
-            if (algo =="peibfs") {
+            } else if (algo =="peibfs") {
                 std::cerr << "Parallel EIBFS:" << std::endl;
                 bench_pibfs(bkg);
-            }
-            /*if (algo =="ppr") {
+            } /*else if (algo =="ppr") {
                 std::cerr << "Parallel PR:" << std::endl;
                 bench_ppr(bkg);
-            }*/
-            if (algo =="hpf") {
+            }*/ else if (algo =="hpf") {
                 std::cerr << "HPF:" << std::endl;
                 bench_hpf(bkg);
-            }
-            if (algo =="hi_pr") {
+            } else if (algo =="hi_pr") {
                 std::cerr << "HI_PR:" << std::endl;
                 bench_hi_pr(bkg);
-            }
-            /*if (algo =="sk_old") {
+            } /*else if (algo =="sk_old") {
                 std::cerr << "Strandmark-Kahl old:" << std::endl;
                 bench_sk_old(bkg);
-            }*/
-            if (algo =="sk") {
+            }*/ else if (algo =="sk") {
                 std::cerr << "Strandmark-Kahl new:" << std::endl;
                 bench_sk(bkg);
             }
 #ifdef GRIDCUT_IS_AVAILABLE
-            if (algo == "gridcut") {
+            else if (algo == "gridcut") {
                 std::cerr << "GridCut:" << std::endl;
                 bench_gridcut(bkg);
-            }
-            if (algo == "gridcut_fastbuild") {
+            } else if (algo == "gridcut_fastbuild") {
                 std::cerr << "GridCut (fastbuild):" << std::endl;
                 bench_gridcut_fastbuild(bkg);
-            }
-            if (algo == "gridcut_mt") {
+            } else if (algo == "gridcut_mt") {
                 std::cerr << "Parallel GridCut:" << std::endl;
                 bench_gridcut_mt(bkg);
             }
 #endif
+            else {
+                std::cerr << "Unknown algorithm: " << algo << std::endl;
+            }
         }
     } catch (const std::exception& e) {
         std::cout << "ERROR: " << e.what() << "\n";
