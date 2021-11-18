@@ -40,5 +40,11 @@ out/
 *.max
 *.bbk
 
+# d_maxflow binary directory
+prd/bin
+
 # Source files in GridCut directory as their license disallows redistribution
 grid_cut/*.h
+
+# Python stuff
+__pycache__
