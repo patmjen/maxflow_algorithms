@@ -27,8 +27,8 @@ def main(argv):
     parser.add_argument('--base_file', help='file with JSON data to insert into')
     args = parser.parse_args(argv)
 
-    files = glob(args.file_glob)
-    entries = [name_to_entry(os.path.abspath(f)) for f in files]
+    files = sorted(glob(args.file_glob))
+    entries = [name_to_entry(os.path.abspath(f)) for f in files if is_benchfile(f)]
 
     if args.base_file is not None:
         with open(args.base_file) as in_file:
