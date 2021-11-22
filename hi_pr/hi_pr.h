@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include "values.h"
 #include "types.h"          /* type definitions */
@@ -32,10 +33,10 @@ class HiPr {
 public:
 	/* global variables */
 
-	long   n;                    /* number of nodes */
-	long   m;                    /* number of arcs */
-	long   nm;                   /* n + ALPHA * m */
-	long   nMin;                 /* smallest node id */
+	unsigned long   n;                    /* number of nodes */
+	unsigned long   m;                    /* number of arcs */
+	unsigned long   nm;                   /* n + ALPHA * m */
+	unsigned long   nMin;                 /* smallest node id */
 	node   *nodes;               /* array of nodes */
 	arc    *arcs;                /* array of arcs */
 	bucket *buckets;             /* array of buckets */
@@ -44,22 +45,22 @@ public:
 	node   *sink;                /* sink node pointer */
 	//node   **queue;              /* queue for BFS */
 	//node   **qHead, **qTail, **qLast;     /* queue pointers */
-	long   dMax;                 /* maximum label */
-	long   aMax;                 /* maximum actie node label */
-	long   aMin;                 /* minimum active node label */
+	unsigned long   dMax;                 /* maximum label */
+	unsigned long   aMax;                 /* maximum actie node label */
+	unsigned long   aMin;                 /* minimum active node label */
 	excessType flow;             /* flow value */
-	long pushCnt;                /* number of pushes */
-	long relabelCnt;             /* number of relabels */
-	long updateCnt;              /* number of updates */
-	long gapCnt;                 /* number of gaps */
-	long gNodeCnt;               /* number of nodes after gap */
+	unsigned long pushCnt;                /* number of pushes */
+	unsigned long relabelCnt;             /* number of relabels */
+	unsigned long updateCnt;              /* number of updates */
+	unsigned long gapCnt;                 /* number of gaps */
+	unsigned long gNodeCnt;               /* number of nodes after gap */
 	float t, t2;                 /* for saving times */
 	node   *sentinelNode;        /* end of the node list marker */
 	arc *stopA;                  /* used in forAllArcs */
-	long workSinceUpdate;        /* the number of arc scans since last update */
+	unsigned long workSinceUpdate;        /* the number of arc scans since last update */
 	float globUpdtFreq;          /* global update frequency */
 	//
-	long i_dist;
+	unsigned long i_dist;
 	//
 	node *i_next, *i_prev;
 public:
@@ -75,7 +76,7 @@ public:
 	bool is_weak_source(node * v);
 public:
 	template<typename tcap>
-	void construct(int nV, int nE, const int * E, const tcap * cap, const tcap * excess);
+	void construct(unsigned int nV, unsigned int nE, const int * E, const tcap * cap, const tcap * excess);
 	void construct(const char * filename);
 	~HiPr()
 	{
@@ -88,14 +89,14 @@ private:
 	   1. Reads maximal flow problem in extended DIMACS format.
 	   2. Prepares internal data representation.
 	*/
-	int parse(long *n_ad, long *m_ad, node **nodes_ad, arc **arcs_ad, cType **cap_ad, node **source_ad, node **sink_ad, long *node_min_ad);
+	int parse(unsigned long *n_ad, unsigned long *m_ad, node **nodes_ad, arc **arcs_ad, cType **cap_ad, node **source_ad, node **sink_ad, unsigned long *node_min_ad);
 	FORCE_INLINE int gap(bucket *emptyB); /*!< gap relabeling */
-	FORCE_INLINE long relabel(node *i);/*!<--- relabelling node i */
+	FORCE_INLINE unsigned long relabel(node *i);/*!<--- relabelling node i */
 	FORCE_INLINE void discharge(node *i);/*!< discharge: push flow out of i until i becomes inactive */
 	void wave();//!< go from higher to lower buckets, push flow
 public:
 	excessType flow0;             /* added flow value */
-	void add_arc(int tail, int head, cType cap1, cType cap2, long *& arc_first, long *& arc_tail, long & pos_current, arc *& arc_current, node *& nodes, long & node_min, long & node_max, long & no_alines);
+	void add_arc(unsigned int tail, unsigned int head, cType cap1, cType cap2, unsigned long *& arc_first, unsigned long *& arc_tail, unsigned long & pos_current, arc *& arc_current, node *& nodes, unsigned long & node_min, unsigned long & node_max, unsigned long & no_alines);
 };
 
 } // namespace hi_pr

@@ -563,8 +563,8 @@ private:
 	int64_t topLevelS, topLevelT;
 	ActiveList active0, activeS1, activeT1;
 	Node **incList;
-	int incLen;
-	int incIteration;
+	int64_t incLen;
+	int64_t incIteration;
 	Buckets3Pass orphan3PassBuckets;
 	BucketsOneSided orphanBuckets;
 	ExcessBuckets excessBuckets;

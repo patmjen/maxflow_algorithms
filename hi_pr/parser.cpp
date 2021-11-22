@@ -35,14 +35,14 @@ namespace hi_pr {
 /* ----------------------------------------------------------------- */
 int HiPr::parse(
 	/* all parameters are output */
-	long    *n_ad,                 /* address of the number of nodes */
-	long    *m_ad,                 /* address of the number of arcs */
+	unsigned long    *n_ad,                 /* address of the number of nodes */
+	unsigned long    *m_ad,                 /* address of the number of arcs */
 	node    **nodes_ad,            /* address of the array of nodes */
 	arc     **arcs_ad,             /* address of the array of arcs */
 	cType   **cap_ad,              /* address of the array of capasities */
 	node    **source_ad,           /* address of the pointer to the source */
 	node    **sink_ad,             /* address of the pointer to the source */
-	long    *node_min_ad          /* address of the minimal node */
+	unsigned long    *node_min_ad          /* address of the minimal node */
 )
 {
 
@@ -53,7 +53,7 @@ int HiPr::parse(
 #define PROBLEM_TYPE "max"      /* name of problem type*/
 
 
-	long    n,                      /* internal number of nodes */
+	unsigned long    n,                      /* internal number of nodes */
 		node_min = 0,             /* minimal no of node  */
 		node_max = 0,             /* maximal no of nodes */
 		*arc_first = NULL,         /* internal array for holding
@@ -65,7 +65,7 @@ int HiPr::parse(
 		/* temporary variables carrying no of nodes */
 		head, tail, i;
 
-	long    m,                      /* internal number of arcs */
+	unsigned long    m,                      /* internal number of arcs */
 		/* temporary variables carrying no of arcs */
 		last, arc_num, arc_new_num;
 
@@ -81,7 +81,7 @@ int HiPr::parse(
 	cType   *acap = NULL,             /* array of capasities */
 		cap;                    /* capasity of the current arc */
 
-	long    no_lines = 0,             /* no of current input line */
+	unsigned long    no_lines = 0,             /* no of current input line */
 		no_plines = 0,            /* no of problem-lines */
 		no_nslines = 0,           /* no of node-source-lines */
 		no_nklines = 0,           /* no of node-source-lines */
@@ -93,8 +93,8 @@ int HiPr::parse(
 		pr_type[4],             /* for reading type of the problem */
 		nd;                     /* source (s) or sink (t) */
 
-	int     k,                      /* temporary */
-		err_no;                 /* no of detected error */
+	unsigned int k;                      /* temporary */
+	int     err_no;                 /* no of detected error */
 
 	/* -------------- error numbers & error messages ---------------- */
 #define EN1   0
@@ -196,8 +196,8 @@ int HiPr::parse(
 			/* allocating memory for  'nodes', 'arcs'  and internal arrays */
 			nodes = (node*)calloc(n + 2, sizeof(node));//!< +1 for 0'th node, when numbering in file starts from 1, +1 for sentinelNode
 			arcs = (arc*)calloc(2 * m + 1, sizeof(arc));
-			arc_tail = (long*)calloc(2 * m, sizeof(long));
-			arc_first = (long*)calloc(n + 2, sizeof(long));
+			arc_tail = (unsigned long*)calloc(2 * m, sizeof(unsigned long));
+			arc_first = (unsigned long*)calloc(n + 2, sizeof(unsigned long));
 			acap = (cType*)calloc(2 * m, sizeof(long));
 
 			/* arc_first [ 0 .. n+1 ] = 0 - initialized by calloc */

@@ -6,7 +6,7 @@
 
 namespace hi_pr {
 
-template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, const tcap * _cap, const tcap * _excess)
+template<typename tcap> void HiPr::construct(unsigned int _nV, unsigned int _nE, const int * _E, const tcap * _cap, const tcap * _excess)
 {
 
 	globUpdtFreq = GLOB_UPDT_FREQ;
@@ -15,19 +15,19 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 
 
 	/* all parameters are output */
-	long    *n_ad = &n;            /* address of the number of nodes */
-	long    *m_ad = &m;            /* address of the number of arcs */
+	unsigned long    *n_ad = &n;            /* address of the number of nodes */
+	unsigned long    *m_ad = &m;            /* address of the number of arcs */
 	node    **nodes_ad = &nodes;   /* address of the array of nodes */
 	arc     **arcs_ad = &arcs;       /* address of the array of arcs */
 	cType   **cap_ad = &cap;         /* address of the array of capasities */
 	node    **source_ad = &source;   /* address of the pointer to the source */
 	node    **sink_ad = &sink;       /* address of the pointer to the source */
-	long    *node_min_ad = &nMin;    /* address of the minimal node */
+	unsigned long    *node_min_ad = &nMin;    /* address of the minimal node */
 
 #define PROBLEM_TYPE "max"      /* name of problem type*/
 
 
-	long    n,                      /* internal number of nodes */
+	unsigned long    n,                      /* internal number of nodes */
 		node_min = 0,             /* minimal no of node  */
 		node_max = 0,             /* maximal no of nodes */
 		*arc_first = NULL,         /* internal array for holding
@@ -39,7 +39,7 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 		/* temporary variables carrying no of nodes */
 		head, tail, i;
 
-	long    m,                      /* internal number of arcs */
+	unsigned long    m,                      /* internal number of arcs */
 		/* temporary variables carrying no of arcs */
 		last, arc_num, arc_new_num;
 
@@ -55,7 +55,7 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 	cType   *acap = NULL,             /* array of capasities */
 		cap;                    /* capasity of the current arc */
 
-	long    no_lines = 0,             /* no of current input line */
+	unsigned long    no_lines = 0,             /* no of current input line */
 		no_plines = 0,            /* no of problem-lines */
 		no_nslines = 0,           /* no of node-source-lines */
 		no_nklines = 0,           /* no of node-source-lines */
@@ -120,8 +120,8 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 
 	nodes = (node*)calloc(n + 2, sizeof(node));
 	arcs = (arc*)calloc(2 * m + 1, sizeof(arc));
-	arc_tail = (long*)calloc(2 * m, sizeof(long));
-	arc_first = (long*)calloc(n + 2, sizeof(long));
+	arc_tail = (unsigned long*)calloc(2 * m, sizeof(unsigned long));
+	arc_first = (unsigned long*)calloc(n + 2, sizeof(unsigned long));
 	acap = (cType*)calloc(2 * m, sizeof(long));
 
 	if (nodes == NULL || arcs == NULL ||
@@ -138,7 +138,7 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 	node_max = 0;
 	node_min = n;
 
-	for (int e = 0; e < _nE; ++e) {
+	for (unsigned int e = 0; e < _nE; ++e) {
 		tail = _E[2 * e];
 		head = _E[2 * e + 1];
 		cType cap1 = _cap[2 * e];
@@ -147,7 +147,7 @@ template<typename tcap> void HiPr::construct(int _nV, int _nE, const int * _E, c
 	};
 
 	this->flow0 = 0;
-	for (int v = 0; v < _nV; ++v) {
+	for (unsigned int v = 0; v < _nV; ++v) {
 		tcap cap = _excess[v];// dont access nodes beyond nV - Ok
 		if (cap == 0) {
 			--m;
@@ -313,7 +313,7 @@ error:  /* error found reading input */
 
 };
 
-template void HiPr::construct<int>(int, int, const int *, const int *, const int *);
+template void HiPr::construct<int>(unsigned int, unsigned int, const int *, const int *, const int *);
 
 
 void HiPr::destroy()
@@ -324,7 +324,7 @@ void HiPr::destroy()
 	free(buckets);
 };
 
-void inline HiPr::add_arc(int tail, int head, cType cap1, cType cap2, long *& arc_first, long *& arc_tail, long & pos_current, arc *& arc_current, node *& nodes, long & node_min, long & node_max, long & no_alines)
+void inline HiPr::add_arc(unsigned int tail, unsigned int head, cType cap1, cType cap2, unsigned long *& arc_first, unsigned long *& arc_tail, unsigned long & pos_current, arc *& arc_current, node *& nodes, unsigned long & node_min, unsigned long & node_max, unsigned long & no_alines)
 {
 	/* no of arcs incident to node i is stored in arc_first[i+1] */
 	arc_first[tail + 1] ++;

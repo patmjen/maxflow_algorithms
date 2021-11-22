@@ -102,7 +102,7 @@ public:
 	// Also, temporarily the amount of allocated memory would be more than twice than needed.
 	// Similarly for edges.
 	// If you wish to avoid this overhead, you can download version 2.2, where nodes and edges are stored in blocks.
-	Graph(int node_num_max, int edge_num_max, void (*err_function)(const char *) = NULL);
+	Graph(size_t node_num_max, size_t edge_num_max, void (*err_function)(const char *) = NULL);
 
 	// Destructor
 	~Graph();

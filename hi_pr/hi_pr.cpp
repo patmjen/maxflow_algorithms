@@ -244,7 +244,7 @@ void HiPr::globalUpdate()
 	node  *i, *j;       /* node pointers */
 	arc   *a;           /* current arc pointers  */
 	bucket *l, *jL;          /* bucket */
-	long curDist, jD;
+        unsigned long curDist, jD;
 	long state;
 
 
@@ -509,7 +509,7 @@ int HiPr::gap(bucket *emptyB)
 
 	bucket *l;
 	node  *i;
-	long  r;           /* index of the bucket before l  */
+	unsigned long  r;           /* index of the bucket before l  */
 	int   cc;          /* cc = 1 if no nodes with positive excess before
 					   the gap */
 
@@ -545,11 +545,11 @@ int HiPr::gap(bucket *emptyB)
 
 /*--- relabelling node i */
 
-long HiPr::relabel(node *i)
+unsigned long HiPr::relabel(node *i)
 {/* node to relabel */
 
 	node  *j;
-	long  minD;     /* minimum d of a node reachable from i */
+	unsigned long  minD;     /* minimum d of a node reachable from i */
 	arc   *minA;    /* an arc which leads to the node with minimal d */
 	arc   *a;
 
@@ -596,7 +596,7 @@ void HiPr::discharge(node  *i)
 {
 
 	node  *j;                 /* sucsessor of i */
-	long  jD;                 /* d of the next bucket */
+	unsigned long  jD;                 /* d of the next bucket */
 	bucket *lj;               /* j's bucket */
 	bucket *l;                /* i's bucket */
 	arc   *a;                 /* current arc (i,j) */
@@ -641,7 +641,7 @@ void HiPr::discharge(node  *i)
 
 					if (i->excess == 0) break;
 
-				} /* j belongs to the next bucket */
+				} /* j belint int ongs to the next bucket */
 			} /* a  is not saturated */
 		} /* end of scanning arcs from  i */
 
@@ -741,7 +741,7 @@ int HiPr::main(int argc, char *argv[])
 #endif
 
 #ifdef PRINT_FLOW
-	long ni, na;
+	long long ni, na;
 #endif
 #ifdef PRINT_CUT
 	node *j;
