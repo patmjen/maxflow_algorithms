@@ -106,7 +106,7 @@ void check_graphs_equal(const BkGraph<C, T>& a, const BkGraph<C, T>& b)
 }
 
 
-void dimacs_to_bbk(const std::string& fname)
+void dimacs_to_bbk(const std::string& fname, bool compress)
 {
     std::string bfname = fname + ".bbk";
 
@@ -116,9 +116,9 @@ void dimacs_to_bbk(const std::string& fname)
     std::chrono::duration<double> dur = std::chrono::system_clock::now() - start;
     std::cout << dur.count() << " seconds\n";
 
-    std::cout << "writing binary bk... ";
+    std::cout << "writing " << std::string(compress ? "compressed" : "") << " bbk... ";
     start = std::chrono::system_clock::now();
-    write_bk_to_bbk<int, int>(bfname, bkg_dimacs);
+    write_bk_to_bbk<int, int>(bfname, bkg_dimacs, compress);
     dur = std::chrono::system_clock::now() - start;
     std::cout << dur.count() << " seconds\n";
 
@@ -296,10 +296,33 @@ void bq_to_compressed_bq(const std::string& fname)
     }
 }
 
+void bq_to_bbk(const std::string& fname, bool compress)
+{
+    std::string ofname = fname + ".bbk";
+
+    std::cout << "reading bq... ";
+    auto start = std::chrono::system_clock::now();
+    auto bq = read_bq_to_qpbo<int>(fname);
+    std::chrono::duration<double> dur = std::chrono::system_clock::now() - start;
+    std::cout << dur.count() << " seconds\n";
+
+    std::cout << "qpbo to bbk... ";
+    start = std::chrono::system_clock::now();
+    auto bkg = qpbo_to_graph(bq); 
+    dur = std::chrono::system_clock::now() - start;
+    std::cout << dur.count() << " seconds\n";
+
+    std::cout << "writing " << std::string(compress ? "compressed" : "") << " bbk... ";
+    start = std::chrono::system_clock::now();
+    write_bk_to_bbk<int, int>(ofname, bkg, compress);
+    dur = std::chrono::system_clock::now() - start;
+    std::cout << dur.count() << " seconds\n";
+}
+
 int main(int argc, const char *argv[])
 {
     if (argc < 3) {
-        std::cout << "usage: bench_io <command> <fname>\n";
+        std::cout << "usage: bench_io <command> <fname> [--no-compress]\n";
         std::cout << "  commands:\n";
         std::cout << "  * dimacs_to_bbk\n";
         std::cout << "  * bbk_to_dimacs\n";
@@ -307,14 +330,16 @@ int main(int argc, const char *argv[])
         std::cout << "  * blk_to_txt\n";
         std::cout << "  * bbk_to_compressed_bbk\n";
         std::cout << "  * bq_to_compressed_bq\n";
+        std::cout << "  * bq_to_bbk\n";
         return 0;
     }
     std::string cmd = argv[1];
     std::string fname = argv[2];
+    bool compress = argc > 3 ? std::string(argv[3]) != "--no-compress" : true;
     
     try {
         if (cmd == "dimacs_to_bbk") {
-            dimacs_to_bbk(fname);
+            dimacs_to_bbk(fname, compress);
         } else if (cmd == "bbk_to_dimacs") {
             bbk_to_dimacs(fname);
         } else if (cmd == "bq_to_dimacs") {
@@ -325,6 +350,8 @@ int main(int argc, const char *argv[])
             bbk_to_compressed_bbk(fname);
         } else if (cmd == "bq_to_compressed_bq") {
             bq_to_compressed_bq(fname);
+        } else if (cmd == "bq_to_bbk") {
+            bq_to_bbk(fname, compress);
         } else {
             std::cout << "ERROR: Invalid command\n";
         }
