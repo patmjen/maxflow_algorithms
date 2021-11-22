@@ -879,27 +879,30 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
         std::copy_n(node_blocks.begin(), old_size, node_blocks.begin() + old_size);
     }
 
-    /*unsigned int num_threads = config.num_threads;
-    uint16_t blocks_per_thread = num_blocks / num_threads;
+    unsigned int num_threads = config.num_threads;
+    uint16_t blocks_per_thread = num_blocks / (2 * num_threads);
     if (blocks_per_thread == 0) {
         // Have more threads than blocks, just use one thread per block
-        blocks_per_thread = 1;
+        blocks_per_thread = num_blocks == 1 ? 1 : 2;
         num_threads = num_blocks;
     }
 
     // Update node_blocks so blocks have their correct block indices
+    uint16_t used_blocks = 0;
     for (auto& block : node_blocks) {
-        block = std::min<uint16_t>(block / blocks_per_thread, num_threads - 1);
-    }*/
-
+        block = std::min<uint16_t>(block / blocks_per_thread, 2*num_threads);
+        used_blocks = std::max<uint16_t>(used_blocks, block);
+    }
+    used_blocks++; // Used blocks holds the max. block index so add one to get number of blocks
+    
     auto build_begin = now();
 
     region_graph G;
     G.pth = dir_name;
-    region_splitter2 splitter(splitter_file, &G, num_blocks, node_blocks);
+    region_splitter2 splitter(splitter_file, &G, used_blocks, node_blocks);
 
     parallel_ARD1 pard;
-    pard.params.n_threads = config.num_threads;
+    pard.params.n_threads = num_threads;
     pard.construct(&G);
     splitter.allocate1(data.num_nodes + 2, 0, source, sink, d, size);
 
@@ -929,7 +932,7 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     // the internal timer of the implementation here. For the build time, our external timer seems
     // to give a more fair assessment (although it's longer than needed since it does include some
     // disk I/O).
-    return std::make_tuple(flow, build_dur.count(), pard.info.solve_t.time(), config.num_threads);
+    return std::make_tuple(flow, build_dur.count(), pard.info.solve_t.time(), used_blocks);
 }
 
 template <class Cap, class Term, class Flow, class Index, class Data>
