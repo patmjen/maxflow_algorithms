@@ -58,6 +58,7 @@ class ParallelGraph {
     static_assert(std::is_integral<ArcIdx>::value, "ArcIdx must be an integer type");
     static_assert(std::is_integral<NodeIdx>::value, "NodeIdx must be an integer type");
     static_assert(std::is_signed<Term>::value, "Term must be a signed type");
+    static_assert(std::is_signed<Cap>::value, "Cap must be a signed type");
 
     // Forward decls.
     struct Node;
@@ -70,6 +71,7 @@ public:
     static const ArcIdx INVALID_ARC = ~ArcIdx(0); // -1 for signed type, max. value for unsigned type
     static const ArcIdx TERMINAL_ARC = INVALID_ARC - 1;
     static const ArcIdx ORPHAN_ARC = INVALID_ARC - 2;
+    static const Cap INACTIVE_ARC = -1;
 
     ParallelGraph(size_t expected_nodes, size_t expected_arcs, size_t expected_blocks);
 
@@ -332,8 +334,8 @@ inline void ParallelGraph<Cap, Term, Flow, ArcIdx, NodeIdx>::add_edge(
         add_half_edge(i, j, cap, merge_duplicates);
         add_half_edge(j, i, rev_cap, merge_duplicates);
     } else {
-        const ArcIdx a1 = add_half_edge(i, j, 0, merge_duplicates);
-        const ArcIdx a2 = add_half_edge(j, i, 0, merge_duplicates);
+        const ArcIdx a1 = add_half_edge(i, j, INACTIVE_ARC, merge_duplicates);
+        const ArcIdx a2 = add_half_edge(j, i, INACTIVE_ARC, merge_duplicates);
         const auto key = block_key(bi, bj);
         boundary_arcs[key].push_back(std::make_pair(a1, cap));
         boundary_arcs[key].push_back(std::make_pair(a2, rev_cap));
@@ -972,15 +974,17 @@ inline void ParallelGraph<Cap, Term, Flow, ArcIdx, NodeIdx>::GraphBlock::process
     } else {
         // No parent was found so process neighbors
         for (ArcIdx a0 = n.first; a0 != INVALID_ARC; a0 = arcs[a0].next) {
-            NodeIdx j = arcs[a0].head;
-            Node &m = nodes[j];
-            if (m.is_sink != source && m.parent != INVALID_ARC) {
-                if (sister_or_arc(a0, source).r_cap > 0) {
-                    make_active(j);
-                }
-                ArcIdx pa = m.parent;
-                if (pa != TERMINAL_ARC && pa != ORPHAN_ARC && arcs[pa].head == i) {
-                    make_back_orphan(j);
+            if (arcs[a0].r_cap != INACTIVE_ARC) {
+                NodeIdx j = arcs[a0].head;
+                Node &m = nodes[j];
+                if (m.is_sink != source && m.parent != INVALID_ARC) {
+                    if (sister_or_arc(a0, source).r_cap > 0) {
+                        make_active(j);
+                    }
+                    ArcIdx pa = m.parent;
+                    if (pa != TERMINAL_ARC && pa != ORPHAN_ARC && arcs[pa].head == i) {
+                        make_back_orphan(j);
+                    }
                 }
             }
         }
