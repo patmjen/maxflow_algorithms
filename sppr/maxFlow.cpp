@@ -902,7 +902,7 @@ void run() {
 #endif
     }
     wSetSize = sequence::filter(wSetTmp, wSet, outDegree(S),
-                                                            [](intT vi) { return vi != sink && nodes[vi].e > 0; });
+                                                            [](intT vi) { return vi != sink && vi >= 0 && nodes[vi].e > 0; });
     wSetSize = unique(wSet, wSet + wSetSize) - wSet;
     lowestChangedLabel = 0;
 #if EXCESS_SCALING
@@ -1218,8 +1218,11 @@ void prepareMaxFlow(FlowGraph<intT>& g) {
     sppr_parallel_for (intT i = 1; i < m; ++i)
         firstTmp[i] = (toEdge(edges[i]).first != toEdge(edges[i - 1]).first) ? i : -1;
     intT sz = sequence::filter(firstTmp, first, m, nonNegF<intT>);
-    sppr_parallel_for (intT i = 0; i < sz; ++i)
-        nodes[toEdge(edges[first[i]]).first].first = first[i];
+    sppr_parallel_for (intT i = 0; i < sz; ++i) {
+        intT ni = toEdge(edges[first[i]]).first;
+        if (ni >= 0)
+            nodes[ni].first = first[i];
+    }
     //t.stop(); cout << "t2 = " << t.total() << endl; t.clear(); t.start();
     delete[] firstTmp;
     delete[] first;
