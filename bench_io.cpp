@@ -138,7 +138,17 @@ void write_dimacs(const std::string& out_fname, const BkGraph<C, T>& bkg)
     std::cout << "writing dimacs (" << out_fname << ")... ";
     auto start = std::chrono::system_clock::now();
     auto dimacs = std::fstream(out_fname, std::ios::out);
-    auto num_arcs = bkg.neighbor_arcs.size() + bkg.terminal_arcs.size();
+    size_t num_term_arcs_nz = 0;
+    size_t num_nbor_arcs_nz = 0;
+    for (const auto& a : bkg.terminal_arcs) {
+        num_term_arcs_nz += (a.source_cap != 0);
+        num_term_arcs_nz += (a.sink_cap != 0);
+    }
+    for (const auto& a : bkg.neighbor_arcs) {
+        num_nbor_arcs_nz += (a.cap != 0);
+        num_nbor_arcs_nz += (a.rev_cap != 0);
+    }
+    auto num_arcs = num_term_arcs_nz + num_nbor_arcs_nz;
 
     // Problem line
     dimacs << "p max " << bkg.num_nodes + 2 << ' ' << num_arcs << '\n';
