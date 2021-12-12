@@ -45,11 +45,13 @@ namespace fs = std::experimental::filesystem;
 #include "hi_pr/hi_pr.h"
 #include "sppr/maxFlow.h"
 
-/*#include <cstdlib>
+#if PARD_IS_AVAILABLE
+#include <cstdlib>
 #include "d_maxflow/parallel_ARD1.h"
 #include "d_maxflow/dimacs_parser.h"
 #include "d_maxflow/region_graph.h"
-#include "d_maxflow/region_splitter2.h"*/
+#include "d_maxflow/region_splitter2.h"
+#endif
 
 #include "reimpls/robin_hood.h"
 
@@ -857,10 +859,11 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_sk(
     return std::make_tuple(flow, build_dur.count(), solve_dur.count(), config.num_threads);
 }
 
-/*template <class Cap, class Term, class Flow, class Index, class Data>
+template <class Cap, class Term, class Flow, class Index, class Data>
 std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     BenchConfig config, const Data& data, std::vector<uint16_t> node_blocks, uint16_t num_blocks)
 {
+#ifdef PARD_IS_AVAILABLE
     constexpr int source = 0;
     constexpr int sink = 1;
     const std::string tstamp = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
@@ -933,7 +936,10 @@ std::tuple<Flow, double, double, uint16_t> bench_parallel_rd(
     // to give a more fair assessment (although it's longer than needed since it does include some
     // disk I/O).
     return std::make_tuple(flow, build_dur.count(), pard.info.solve_t.time(), used_blocks);
-}*/
+#else
+    throw std::runtime_error("P-ARD is not available");
+#endif
+}
 
 template <class Cap, class Term, class Flow, class Index, class Data>
 std::tuple<Flow, double, double, uint16_t> bench_parallel_eibfs(
@@ -1257,8 +1263,7 @@ void bench_data(DataConfig data_config, BenchConfig bench_config, const Data& da
             std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_sk<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
             break;
         case ALGO_PARD:
-            //std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_rd<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
-            throw std::runtime_error("P-ARD is not available.");
+            std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_rd<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
             break;
         case ALGO_PEIBFS:
             std::tie(flow, build_time, solve_time, used_blocks) = bench_parallel_eibfs<Cap, Term, Flow, Index, Data>(bench_config, data, node_blocks, num_blocks);
