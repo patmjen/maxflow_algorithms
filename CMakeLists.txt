@@ -50,7 +50,6 @@ endif()
 # Add and configure targets
 add_executable(demo "demo.cpp" "graph_io.cpp")
 add_executable(bench_io "bench_io.cpp" "graph_io.cpp")
-add_executable(udemo "unified_demo.cpp" "graph_io.cpp")
 
 if (maxflow_algos_build_bench)
     add_executable(bench "bench.cpp" "graph_io.cpp")
@@ -77,7 +76,7 @@ if (maxflow_algos_build_bench)
     endif()
 endif()
 
-foreach(EXE demo bench_io udemo)
+foreach(EXE demo bench_io)
     if (WIN32)
         target_compile_options(${EXE} PRIVATE /debug /Z7 /openmp)
         target_link_options(${EXE} PRIVATE /profile)
