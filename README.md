@@ -5,7 +5,10 @@
 
 This is a collection of min-cut/max-flow algorithms which can used for benchmarking min-cut/max-flow algoriths. The collection is released in companionship with the paper:
 
-* Jensen et al., "Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision", 2021 (Under review).
+<ul><b>Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision</b>,<br>
+    Patrick M. Jensen, Niels Jeppesen, Anders B. Dahl, Vedrana A. Dahl, 2022 (Under review).<br>
+  [ <a href="https://arxiv.org/abs/2202.00418">arXiv preprint</a> ]
+</ul>
 
 If you make use of these, remember to also cite the relevant papers.
 
