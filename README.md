@@ -148,7 +148,7 @@ The programs should then be in the `build` directory.
 
 ## Licences
 
-We provide our re-implementations under the MIT license (see license file in `reimpls`), except for `hpf.h`, `ibfs.h`, and `ibfs2.h` which have their own licenses. Note that the `robin_hood` hashtable (in `robin_hood.h`) is not developed by us but is also released under its own MIT license (see the file).
+We provide our re-implementations under the MIT license (see license file in `reimpls`), except for `hpf.h`, `ibfs.h`, and `ibfs2.h` which have their own licenses. Note that the `robin_hood` hashtable (in `robin_hood.h`) and JSON library (in `json.hpp`) are not developed by us but are also released under their own MIT license (see the files).
 
 The original author implementations are released under their own licenses. Where available, licenses are provided in the respective directories and we list them below for convenience. Note that this is not legal advice - double check yourself before use. Where a license was available, they allow for research purposes but most disallow commercial use.
 
