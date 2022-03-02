@@ -10,7 +10,7 @@ This is a collection of min-cut/max-flow algorithms which can used for benchmark
   [ <a href="https://arxiv.org/abs/2202.00418">arXiv preprint</a> ]
 </ul>
 
-If you make use of these algorithms, remember to also cite the relevant papers. We also provide Python bindings for some algorithms here: [github.com/skielex/shrdr](https://github.com/skielex/shrdr) (see also [Related repositories](https://github.com/skielex/shrdr)).
+If you make use of these algorithms, remember to also cite the relevant papers. We also provide **Python bindings** for some algorithms here: [github.com/skielex/shrdr](https://github.com/skielex/shrdr) (see also [Related repositories](https://github.com/skielex/shrdr)).
 
 ## Contents
 
