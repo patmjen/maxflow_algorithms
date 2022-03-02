@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 # Set up the project
 option(maxflow_algos_build_bench "Build benchmark program" ON)
-option(maxflow_algos_gridcut_available "GridCut implementation is available" ON)
+option(maxflow_algos_gridcut_available "GridCut implementation is available" OFF)
 option(maxflow_algos_vtune_instrumentation "Enable Intel VTune instrumentation" OFF)
 option(maxflow_algos_link_pard "Link P-ARD implementation" OFF)
 
