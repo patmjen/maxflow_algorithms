@@ -3,14 +3,14 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4903945.svg)](https://doi.org/10.5281/zenodo.4903945)
 
 
-This is a collection of min-cut/max-flow algorithms which can used for benchmarking min-cut/max-flow algoriths. The collection is released in companionship with the paper:
+This is a collection of min-cut/max-flow algorithms which can used for benchmarking. The collection is released in companionship with the paper:
 
 <ul><b>Review of Serial and Parallel Min-Cut/Max-Flow Algorithms for Computer Vision</b>,<br>
     Patrick M. Jensen, Niels Jeppesen, Anders B. Dahl, Vedrana A. Dahl, 2022 (Under review).<br>
   [ <a href="https://arxiv.org/abs/2202.00418">arXiv preprint</a> ]
 </ul>
 
-If you make use of these, remember to also cite the relevant papers.
+If you make use of these algorithms, remember to also cite the relevant papers. We also provide Python bindings for some algorithms here: [github.com/skielex/shrdr](https://github.com/skielex/shrdr) (see also [Related repositories](https://github.com/skielex/shrdr)).
 
 ## Contents
 
