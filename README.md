@@ -92,11 +92,24 @@ We provide three programs:
       "term_cap_type": "<Type of terminal arc capacities>"
     }
     ```
+    Additionally, if benchmarking GridCut, the problem instance entry must also contain a `grid_info` field of the form
+    ```json
+      "grid_info": {
+        "grid_type": "<Type of grid. Can be '2D_4C', '2D_8C', '3D_6C', '3D_26C'>",
+        "width": 123,
+        "height": 456,
+        "depth": 789,
+      }
+    ```
+    **Note:** due to GridCut's license we do **not** include the source here. See [How to Build](#How-to-Build) for instructions on enabling GridCut.
 
     If parallel algorithms are being run, each file must also have a corresponding block file (see [Binary File Formats](#Binary-File-Formats)), which specifies a partition of the graph nodes into blocks. The name of this file must be equal to the "file_name" field with ".blk" appended - e.g. for 'example.max' the block file is 'example.max.blk'.
   * `parallel`: If parallel algorithms are run, this field configures properties specific for those. It must include a `threads` field giving a list of the number of threads to run with for each problem instance and each parallel algorithm.
 
-  Two examples of json config files are included: `bench_config_serial.json` and `bench_config_parallel.json`.
+  Three examples of json config files are included:
+  * `bench_config_serial.json`: Example benchmark config for serial algorithms.
+  * `bench_config_parallel.json`: Example benchmark config for parallel algorithms.
+  * `bench_config_gridcut.json`: Example benchmark config for GridCut.
 
 * **`bench_io`**: Allows for converting between the different file formats. Usage:
 
@@ -147,6 +160,9 @@ cmake --build .
 ```
 
 The programs should then be in the `build` directory.
+
+### Enabling GridCut
+Since GridCut's license forbids redistribution we do not include the source code here. To enable GridCut, download the source from [gridcut.com](https://gridcut.com) and copy the header files in `include/GridCut` to the `grid_cut` directory. Then, set the CMake option `maxflow_algos_gridcut_available` to `ON` and build as normal.
 
 ## Licences
 
