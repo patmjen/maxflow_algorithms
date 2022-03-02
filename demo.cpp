@@ -847,19 +847,19 @@ int main(int argc, const char* argv[])
             } else if (algo == "mbk") {
                 std::cerr << "MBK:" << std::endl;
                 bench_mbk(bkg);
-            } else if (algo == "mbk2") {
+            } else if (algo == "mbk_r") {
                 std::cerr << "MBK2:" << std::endl;
                 bench_mbk2(bkg);
-            } else if (algo == "pmbk") {
+            } else if (algo == "liusun") {
                 std::cerr << "Parallel MBK:" << std::endl;
                 bench_pmbk(bkg, fname);
-            } else if (algo == "eibfs_old") {
+            } else if (algo == "eibfs") {
                 std::cerr << "EIBFS old:" << std::endl;
                 bench_ibfs_old(bkg);
-            } else if (algo =="eibfs") {
+            } else if (algo =="eibfs_i") {
                 std::cerr << "EIBFS new:" << std::endl;
                 bench_ibfs(bkg);
-            } else if (algo =="eibfs2") {
+            } else if (algo =="eibfs_i_nr") {
                 std::cerr << "EIBFS new2:" << std::endl;
                 bench_ibfs2(bkg);
             } else if (algo =="peibfs") {
@@ -868,7 +868,7 @@ int main(int argc, const char* argv[])
             } /*else if (algo =="ppr") {
                 std::cerr << "Parallel PR:" << std::endl;
                 bench_ppr(bkg);
-            }*/ else if (algo =="hpf") {
+            } */else if (algo =="hpf") {
                 std::cerr << "HPF:" << std::endl;
                 bench_hpf(bkg);
             } else if (algo =="hi_pr") {
@@ -877,7 +877,7 @@ int main(int argc, const char* argv[])
             } /*else if (algo =="sk_old") {
                 std::cerr << "Strandmark-Kahl old:" << std::endl;
                 bench_sk_old(bkg);
-            }*/ else if (algo =="sk") {
+            }*/ else if (algo =="psk") {
                 std::cerr << "Strandmark-Kahl new:" << std::endl;
                 bench_sk(bkg);
             }

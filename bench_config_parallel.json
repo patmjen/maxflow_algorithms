@@ -11,7 +11,7 @@
   ],
   "algorithms": [
     "mbk",
-    "pmbk"
+    "liusun"
   ],
   "parallel": {
     "threads": [

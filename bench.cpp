@@ -1371,13 +1371,13 @@ const char* algo_to_string(Algorithm algo)
     case ALGO_MBK:
         return "mbk";
     case ALGO_MBK2:
-        return "mbk2";
+        return "mbk_r";
     case ALGO_EIBFS:
-        return "eibfs";
+        return "eibfs_i";
     case ALGO_EIBFS2:
-        return "eibfs2";
+        return "eibfs_i_nr";
     case ALGO_EIBFS_OLD:
-        return "eibfs_old";
+        return "eibfs";
     case ALGO_HPF:
         return "hpf";
     case ALGO_HPF_HF:
@@ -1394,7 +1394,7 @@ const char* algo_to_string(Algorithm algo)
         return "gridcut";
 
     case ALGO_PMBK:
-        return "pmbk";
+        return "liusun";
     case ALGO_PPR:
         return "ppr";
     case ALGO_PSK:

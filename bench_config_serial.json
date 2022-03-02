@@ -12,7 +12,7 @@
   "algorithms": [
     "mbk",
     "hpf",
-    "eibfs"
+    "eibfs_i"
   ],
   "data_sets": [
     {

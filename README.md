@@ -26,18 +26,19 @@ This collection includes the following implementations:
 
 * `bk` - Author reference implementation of the Boykov-Kolmogorov (BK) algorithm from Boykov & Kolmogorov, "An ExperimentalComparison of Min-Cut/Max-Flow Algorithms for EnergyMinimization in Vision", 2004, PAMI.
 * `mbk` - Our re-implementation of the BK algorithm containing several low-level optimizations. Generally, this implementation performs faster than the author reference.
-* `eibfs_old` - Author reference implementation of the Excesses Incremental Breadth-First Search (EIBFS) algorithm from Goldberg et al., "Faster  and  More  DynamicMaximum Flow by Incremental Breadth-First Search", 2015, ESA.
-* `eibfs` - Our re-implementation of the EIBFS algorithm using indices instead of pointers. Generally, this implementation performs better than the author implementation.
-* `eibfs2` - Our re-implementation of the EIBFS algorithm using indices instead of pointers and with no arc reordering before solving. This uses less memory than the other version, but is generally slower.
+* `mbk_r` - Our re-implementation of the BK algorithm containing several low-level optimizations and arc reordering. For many graphs, this implementation outperforms `mbk` due to better cache efficiency.
+* `eibfs` - Author reference implementation of the Excesses Incremental Breadth-First Search (EIBFS) algorithm from Goldberg et al., "Faster  and  More  DynamicMaximum Flow by Incremental Breadth-First Search", 2015, ESA.
+* `eibfs_i` - Our re-implementation of the EIBFS algorithm using indices instead of pointers. Generally, this implementation performs better than the author implementation.
+* `eibfs_i_nr` - Our re-implementation of the EIBFS algorithm using indices instead of pointers and with no arc reordering before solving. This uses less memory than the other version, but is generally slower.
 * `hpf` - Author reference implementation of the Hochbaum pseudoflow (HPF) from Hochbaum, "The  pseudoflow algorithm: A new algorithm for the maximum-flow problem", 2008, Operations Research. There are four possible configurations of this algorithm:
   1. Highest label with FIFO buckets: `hpf_hf`.
   2. Highest label with LIFO buckets: `hpf_hl`.
   3. Lowest label with FIFO buckets: `hpf_lf`.
   4. Lowest label with LIFO buckets: `hpf_ll`.
-* `pmbk` - Our re-implementation of the parallel bottom-up merging approach from Liu & Sun, "Parallel Graph-cuts by Adaptive Bottom-up Merging", 2010, CVPR. The original author implementation only allowed for grid graphs while our implementation can handle any graph and any divison into blocks. Note, that this comes with a small performance penalty while building the graph.
+* `liusun` - Our re-implementation of the parallel bottom-up merging approach from Liu & Sun, "Parallel Graph-cuts by Adaptive Bottom-up Merging", 2010, CVPR. The original author implementation only allowed for grid graphs while our implementation can handle any graph and any divison into blocks. Note, that this comes with a small performance penalty while building the graph.
 * `pard` - Author reference implementation of the parallel region discharge algorithm from Shekhovtsov & Hlaváč, "A Distributed Mincut/Maxflow Algorithm Combining Path Augmentation and Push-Relabel", 2013, IJCV. Note that the implementation writes the graph to disk as part of initialization which adds extra overhead.
 * `ppr` - Author reference implementation of a synchronous parallel push-relabel method from Baumstark et al., "Efficient implementation of a synchronous parallel push-relabel algorithm", 2015, ESA.
-* `sk` - Our re-implementation of the parallel dual decomposition approach from Strandmark & Kahl, "Parallel and Distributed Graph Cuts by Dual Decomposition", 2010, CVPR.
+* `psk` - Our re-implementation of the parallel dual decomposition approach from Strandmark & Kahl, "Parallel and Distributed Graph Cuts by Dual Decomposition", 2010, CVPR.
 * `peibfs` - Our implementation of the parallel bottom-up mering approach by Liu and Sun but using EIBFS instead of BK for the max-flow/min-cut computations. Due to high initialization costs, this implementation generally performs worse than the BK version.
 
 ## Programs
@@ -49,7 +50,7 @@ We provide three programs:
   ```txt
   usage: demo <file> [<algo>...]\n";
     Benchmark FILE with ALGOs. ALGO must be one of:
-    bk mbk pmbk eilbfs_old eibfs eibfs2 peibfs ppr hpf hi_pr sk
+    bk mbk mbk_r hpf eilbfs eibfs_i eibfs_i_nr hi_pr liusun peibfs psk
   ```
 
   Example for benchmarking the `bone.n6c10.max.bkk` problem instance with the
@@ -108,6 +109,7 @@ We provide three programs:
     * blk_to_txt
     * bbk_to_compressed_bbk
     * bq_to_compressed_bq
+    * bq_to_bbk
   ```
 
 ## How to Build
