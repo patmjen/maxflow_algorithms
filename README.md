@@ -12,6 +12,8 @@ This is a collection of min-cut/max-flow algorithms which can used for benchmark
 
 If you make use of these algorithms, remember to also cite the relevant papers. We also provide **Python bindings** for some algorithms here: [github.com/skielex/shrdr](https://github.com/skielex/shrdr) (see also [Related repositories](https://github.com/skielex/shrdr#related-repositories)).
 
+**Benchmark data** used for the paper is available at: [DOI:10.11583/DTU.17091101](https://doi.org/10.11583/DTU.17091101)
+
 ## Contents
 
 * [Implemented Algorithms](#Implemented-Algorithms)
